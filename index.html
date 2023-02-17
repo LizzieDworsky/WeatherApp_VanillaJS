@@ -16,10 +16,29 @@
     <body>
         <div class="container">
             <header>
-                <h1>Weather</h1>
-                <form>
-                    <input type="text" /><input type="button" value="Search" />
-                </form>
+                <div class="row">
+                    <div class="col-4">
+                        <h1>Weather</h1>
+                    </div>
+                    <div class="col-8">
+                        <div class="form-group">
+                            <form class="search-form">
+                                <div class="row">
+                                    <div class="col">
+                                        <input
+                                            class="form-control"
+                                            type="text"
+                                            placeholder="Search for a different location"
+                                        />
+                                    </div>
+                                    <div class="col">
+                                        <input type="submit" value="Search" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </header>
             <main>
                 <section>

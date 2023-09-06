@@ -28,6 +28,13 @@ function formatFutureDays(dateObj, daysArr, numberOfDays) {
     return futureDays;
 }
 
+function handleLocationChange(event) {
+    event.preventDefault();
+    let searchInput = document.querySelector("#search-location-input");
+    let locationDiv = document.querySelector("#location-div");
+    locationDiv.innerHTML = searchInput.value;
+}
+
 let dateDiv = document.querySelector("#current-date-time");
 let nextFiveDays = formatFutureDays(now, daysArr, 5);
 let tomorrow = document.querySelector("#tomorrow-card h6");
@@ -35,6 +42,8 @@ let dayThree = document.querySelector("#day-three-card h6");
 let dayFour = document.querySelector("#day-four-card h6");
 let dayFive = document.querySelector("#day-five-card h6");
 let daySix = document.querySelector("#day-six-card h6");
+let form = document.querySelector(".search-form");
+form.addEventListener("submit", handleLocationChange);
 dateDiv.innerHTML = formatTodayDate(now, daysArr);
 tomorrow.innerHTML = nextFiveDays[0];
 dayThree.innerHTML = nextFiveDays[1];

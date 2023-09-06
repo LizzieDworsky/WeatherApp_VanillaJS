@@ -35,18 +35,24 @@ function handleLocationChange(event) {
     locationDiv.innerHTML = searchInput.value;
 }
 
-let dateDiv = document.querySelector("#current-date-time");
+function updateUIElements(nextFiveDays) {
+    let daysElementSelectors = [
+        "#tomorrow-card h6",
+        "#day-three-card h6",
+        "#day-four-card h6",
+        "#day-five-card h6",
+        "#day-six-card h6",
+    ];
+    let todayDiv = document.querySelector("#current-date-time");
+    todayDiv.innerHTML = formatTodayDate(now, daysArr);
+    for (let i = 0; i < 5; i++) {
+        let element = document.querySelector(daysElementSelectors[i]);
+        element.innerHTML = nextFiveDays[i];
+    }
+}
+
 let nextFiveDays = formatFutureDays(now, daysArr, 5);
-let tomorrow = document.querySelector("#tomorrow-card h6");
-let dayThree = document.querySelector("#day-three-card h6");
-let dayFour = document.querySelector("#day-four-card h6");
-let dayFive = document.querySelector("#day-five-card h6");
-let daySix = document.querySelector("#day-six-card h6");
+updateUIElements(nextFiveDays);
+
 let form = document.querySelector(".search-form");
 form.addEventListener("submit", handleLocationChange);
-dateDiv.innerHTML = formatTodayDate(now, daysArr);
-tomorrow.innerHTML = nextFiveDays[0];
-dayThree.innerHTML = nextFiveDays[1];
-dayFour.innerHTML = nextFiveDays[2];
-dayFive.innerHTML = nextFiveDays[3];
-daySix.innerHTML = nextFiveDays[4];

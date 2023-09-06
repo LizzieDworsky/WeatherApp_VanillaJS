@@ -19,16 +19,16 @@ function formatTodayDate(dateObj, daysArr) {
     return `${day} ${hour}:${minutes}`;
 }
 
-function formatFutureDays(dateObj, daysArr) {
-    let nextFiveDays = [];
-    for (let i = 1; i < 6; i++) {
+function formatFutureDays(dateObj, daysArr, numberOfDays) {
+    let futureDays = [];
+    for (let i = 1; i <= numberOfDays; i++) {
         let daysIndex = (dateObj.getDay() + i) % 7;
-        nextFiveDays.push(daysArr[daysIndex]);
+        futureDays.push(daysArr[daysIndex]);
     }
-    return nextFiveDays;
+    return futureDays;
 }
 
 let dateDiv = document.querySelector("#current-date-time");
 dateDiv.innerHTML = formatTodayDate(now, daysArr);
-let nextFiveDays = formatFutureDays(now, daysArr);
+let nextFiveDays = formatFutureDays(now, daysArr, 5);
 console.log(nextFiveDays);

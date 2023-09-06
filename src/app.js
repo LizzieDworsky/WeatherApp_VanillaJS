@@ -51,8 +51,25 @@ function updateUIElements(nextFiveDays) {
     }
 }
 
+function changeTemperatureScales(newTemperatureValue) {
+    let todayTemperature = document.querySelector(".temperature-value");
+    todayTemperature.innerHTML = newTemperatureValue;
+}
+
 let nextFiveDays = formatFutureDays(now, daysArr, 5);
 updateUIElements(nextFiveDays);
 
 let form = document.querySelector(".search-form");
 form.addEventListener("submit", handleLocationChange);
+
+let fahrenheitSpan = document.querySelector("#fahrenheit");
+let celsiusSpan = document.querySelector("#celsius");
+
+fahrenheitSpan.addEventListener("click", (event) => {
+    event.preventDefault();
+    changeTemperatureScales(70);
+});
+celsiusSpan.addEventListener("click", (event) => {
+    event.preventDefault();
+    changeTemperatureScales(21);
+});

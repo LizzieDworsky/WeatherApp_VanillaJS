@@ -31,3 +31,7 @@ body {
 .h3 {
     font-size: 1.75rem;
 }
+
+.celsius-fahrenheit-span {
+    font-size: 50%;
+}

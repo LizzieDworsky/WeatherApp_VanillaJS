@@ -29,6 +29,15 @@ function formatFutureDays(dateObj, daysArr, numberOfDays) {
 }
 
 let dateDiv = document.querySelector("#current-date-time");
-dateDiv.innerHTML = formatTodayDate(now, daysArr);
 let nextFiveDays = formatFutureDays(now, daysArr, 5);
-console.log(nextFiveDays);
+let tomorrow = document.querySelector("#tomorrow-card h6");
+let dayThree = document.querySelector("#day-three-card h6");
+let dayFour = document.querySelector("#day-four-card h6");
+let dayFive = document.querySelector("#day-five-card h6");
+let daySix = document.querySelector("#day-six-card h6");
+dateDiv.innerHTML = formatTodayDate(now, daysArr);
+tomorrow.innerHTML = nextFiveDays[0];
+dayThree.innerHTML = nextFiveDays[1];
+dayFour.innerHTML = nextFiveDays[2];
+dayFive.innerHTML = nextFiveDays[3];
+daySix.innerHTML = nextFiveDays[4];

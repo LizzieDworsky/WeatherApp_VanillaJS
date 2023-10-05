@@ -1,3 +1,4 @@
+import { apiKeyOne, apiKeyTwo } from "../apiKeys.js";
 // ------------------------------
 // SECTION: Time and Days Handling
 // ------------------------------
@@ -50,26 +51,52 @@ function formatFutureDays(dateObj, daysArr, numberOfDays) {
 // ------------------------------
 
 /**
- * Fetch current temperature data from API
- * @returns {Object} - Response data from API
+ * Fetch current temperature data in Celsius from API
+ * @returns {Promise<Object>} - A promise that resolves to the response data from the API
  */
-async function getCurrentTempData() {
+async function getCurrentCelTempData() {
     const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=35.19182118&lon=-106.6941991&units=metric&appid=0a521eaf234a3a56f45252fac3c737ad`
+        `https://api.openweathermap.org/data/2.5/weather?lat=35.19182118&lon=-106.6941991&units=metric&appid=${apiKeyOne}`
+    );
+    return response.data;
+}
+/**
+ * Fetch current temperature data in Fahrenheit from API
+ * @returns {Promise<Object>} - A promise that resolves to the response data from the API
+ */
+async function getCurrentFahTempData() {
+    const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=35.19182118&lon=-106.6941991&units=imperial&appid=${apiKeyOne}`
     );
     return response.data;
 }
 
 // Fetch and log current weather data
 // What I am currently working on
-let weatherObj = await getCurrentTempData();
-console.log(weatherObj);
+let celWeatherObj = await getCurrentCelTempData();
+console.log(celWeatherObj);
+let fahWeatherObj = await getCurrentFahTempData();
+console.log(fahWeatherObj);
 
 // ------------------------------
 // SECTION: Upcoming Weather Handling
 // ------------------------------
 
-// TODO: Implement functions to handle upcoming weather data
+/**
+ * Fetch upcoming weather data from API
+ * @returns {Promise<Object>} - A promise that resolves to the forecast data from the API
+ */
+async function getWeatherData() {
+    const response = await axios.get(
+        `http://api.weatherapi.com/v1/forecast.json?key=${apiKeyTwo}&q=48.8567,2.3508&days=6&aqi=no&alerts=no`
+    );
+    return response.data;
+}
+
+// Fetch and log forecasted weather
+// TODO: Add current location information and use forecast object to update html elements
+let forecastObj = await getWeatherData();
+console.log(forecastObj);
 
 // ------------------------------
 // SECTION: Search Feature Handling
@@ -85,7 +112,7 @@ console.log(weatherObj);
  * Update temperature value in UI
  * @param {number} newTemperatureValue - New temperature value
  */
-function changeTemperatureScales(newTemperatureValue) {
+function changeUITemperatureScales(newTemperatureValue) {
     let todayTemperature = document.querySelector(".temperature-value");
     todayTemperature.innerHTML = newTemperatureValue;
 }
@@ -123,17 +150,19 @@ function handleLocationChange(event) {
 // SECTION: Event Listeners and Initializations
 // ------------------------------
 
+changeUITemperatureScales(Math.round(celWeatherObj.main.temp));
+
 // Add event listeners for temperature scale buttons
 let fahrenheitSpan = document.querySelector("#fahrenheit");
 let celsiusSpan = document.querySelector("#celsius");
 
 fahrenheitSpan.addEventListener("click", (event) => {
     event.preventDefault();
-    changeTemperatureScales(70);
+    changeUITemperatureScales(Math.round(fahWeatherObj.main.temp));
 });
 celsiusSpan.addEventListener("click", (event) => {
     event.preventDefault();
-    changeTemperatureScales(21);
+    changeUITemperatureScales(Math.round(celWeatherObj.main.temp));
 });
 
 // Add event listener for search form submission

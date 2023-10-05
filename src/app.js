@@ -4,8 +4,8 @@ import { apiKeyOne, apiKeyTwo } from "../apiKeys.js";
 // ------------------------------
 
 // Initialize current date and days array
-let now = new Date();
-let daysArr = [
+const now = new Date();
+const daysArr = [
     "Sunday",
     "Monday",
     "Tuesday",
@@ -51,22 +51,13 @@ function formatFutureDays(dateObj, daysArr, numberOfDays) {
 // ------------------------------
 
 /**
- * Fetch current location and call the function to get weather data in Celsius
- * @param {Object} position - The geolocation position object containing 'coords' with 'latitude' and 'longitude'
+ * Fetches the current geolocation and initiates a request to get the current weather data.
+ * @param {Object} position - The geolocation position object containing 'coords' with 'latitude' and 'longitude'.
  */
-function findGeoLocationCallCel(position) {
+function findGeoLocationInitialTemp(position) {
     let currentLocation = [position.coords.latitude, position.coords.longitude];
-    getCurrentCelTempData(currentLocation[0], currentLocation[1]);
+    getCurrentTempByCoordinates(currentLocation[0], currentLocation[1]);
 }
-/**
- * Fetch current location and call the function to get weather data in Fahrenheit
- * @param {Object} position - The geolocation position object containing 'coords' with 'latitude' and 'longitude'
- */
-function findGeoLocationCallFah(position) {
-    let currentLocation = [position.coords.latitude, position.coords.longitude];
-    getCurrentFahTempData(currentLocation[0], currentLocation[1]);
-}
-navigator.geolocation.getCurrentPosition(findGeoLocationCallCel);
 
 // ------------------------------
 // SECTION: Current Weather Handling
@@ -77,20 +68,21 @@ navigator.geolocation.getCurrentPosition(findGeoLocationCallCel);
  * @param {number} lat - Latitude
  * @param {number} long - Longitude
  */
-async function getCurrentCelTempData(lat, long) {
+async function getCurrentTempByCoordinates(lat, long) {
     const response = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=${apiKeyOne}`
     );
     changeUITemperatureScales(Math.round(response.data.main.temp));
+    handleUILocation(response.data.name);
 }
 /**
- * Fetch current temperature data in Fahrenheit from API and update the UI
- * @param {number} lat - Latitude
- * @param {number} long - Longitude
+ * Fetches the current temperature data based on a city name and temperature unit and updates the UI.
+ * @param {string} city - The name of the city.
+ * @param {string} unit - The temperature unit ('metric' or 'imperial').
  */
-async function getCurrentFahTempData(lat, long) {
+async function getCurrentTempCity(city, unit) {
     const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=imperial&appid=${apiKeyOne}`
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKeyOne}&units=${unit}`
     );
     changeUITemperatureScales(Math.round(response.data.main.temp));
 }
@@ -98,6 +90,8 @@ async function getCurrentFahTempData(lat, long) {
 // ------------------------------
 // SECTION: Upcoming Weather Handling
 // ------------------------------
+// Incomplete Code - Limit API Calls while working on other parts of the code
+// TODO: Add current location information and use forecast object to update html elements
 
 // /**
 //  * Fetch upcoming weather data from API
@@ -111,7 +105,6 @@ async function getCurrentFahTempData(lat, long) {
 // }
 
 // // Fetch and log forecasted weather
-// // TODO: Add current location information and use forecast object to update html elements
 // let forecastObj = await getWeatherData();
 // console.log(forecastObj);
 
@@ -153,14 +146,12 @@ function updateUIElementsDays(nextFiveDays) {
     }
 }
 /**
- * Handle location change on form submit
- * @param {Event} event - The form submit event
+ * Updates the displayed location in the UI.
+ * @param {string} location - The new location to display.
  */
-function handleLocationChange(event) {
-    event.preventDefault();
-    let searchInput = document.querySelector("#search-location-input");
+function handleUILocation(location) {
     let locationDiv = document.querySelector("#location-div");
-    locationDiv.innerHTML = searchInput.value;
+    locationDiv.innerHTML = location;
 }
 
 // ------------------------------
@@ -168,25 +159,32 @@ function handleLocationChange(event) {
 // ------------------------------
 
 // Initialize temperature with Celsius data
-
-// Initialize location
+navigator.geolocation.getCurrentPosition(findGeoLocationInitialTemp);
 
 // Add event listeners for temperature scale buttons
 let fahrenheitSpan = document.querySelector("#fahrenheit");
 let celsiusSpan = document.querySelector("#celsius");
 
-fahrenheitSpan.addEventListener("click", (event) => {
-    event.preventDefault();
-    navigator.geolocation.getCurrentPosition(findGeoLocationCallFah);
-});
 celsiusSpan.addEventListener("click", (event) => {
     event.preventDefault();
-    navigator.geolocation.getCurrentPosition(findGeoLocationCallCel);
+    let locationDiv = document.querySelector("#location-div");
+    getCurrentTempCity(locationDiv.innerHTML, "metric");
+});
+fahrenheitSpan.addEventListener("click", (event) => {
+    event.preventDefault();
+    let locationDiv = document.querySelector("#location-div");
+    getCurrentTempCity(locationDiv.innerHTML, "imperial");
 });
 
 // Add event listener for search form submission
 let form = document.querySelector(".search-form");
-form.addEventListener("submit", handleLocationChange);
+form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let searchInput = document.querySelector("#search-location-input");
+    handleUILocation(searchInput.value);
+    getCurrentTempCity(searchInput.value, "metric");
+    searchInput.value = "";
+});
 
 // Initialize UI elements
 let nextFiveDays = formatFutureDays(now, daysArr, 5);

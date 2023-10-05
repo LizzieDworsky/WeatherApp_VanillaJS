@@ -18,7 +18,7 @@ let daysArr = [
 /**
  * Format the current date and time
  * @param {Date} dateObj - The date object
- * @param {Array} daysArr - Array of days in a week
+ * @param {string[]} daysArr - Array of days in a week
  * @returns {string} - Formatted string
  */
 function formatTodayDate(dateObj, daysArr) {
@@ -33,9 +33,9 @@ function formatTodayDate(dateObj, daysArr) {
 /**
  * Get future days based on the current day
  * @param {Date} dateObj - The date object
- * @param {Array} daysArr - Array of days in a week
+ * @param {string[]} daysArr - Array of days in a week
  * @param {number} numberOfDays - Number of future days to get
- * @returns {Array} - Array of future days
+ * @returns {string[]} - Array of future days
  */
 function formatFutureDays(dateObj, daysArr, numberOfDays) {
     let futureDays = [];
@@ -47,56 +47,73 @@ function formatFutureDays(dateObj, daysArr, numberOfDays) {
 }
 
 // ------------------------------
+// SECTION: Geolocation and Temperature Unit Handling
+// ------------------------------
+
+/**
+ * Fetch current location and call the function to get weather data in Celsius
+ * @param {Object} position - The geolocation position object containing 'coords' with 'latitude' and 'longitude'
+ */
+function findGeoLocationCallCel(position) {
+    let currentLocation = [position.coords.latitude, position.coords.longitude];
+    getCurrentCelTempData(currentLocation[0], currentLocation[1]);
+}
+/**
+ * Fetch current location and call the function to get weather data in Fahrenheit
+ * @param {Object} position - The geolocation position object containing 'coords' with 'latitude' and 'longitude'
+ */
+function findGeoLocationCallFah(position) {
+    let currentLocation = [position.coords.latitude, position.coords.longitude];
+    getCurrentFahTempData(currentLocation[0], currentLocation[1]);
+}
+navigator.geolocation.getCurrentPosition(findGeoLocationCallCel);
+
+// ------------------------------
 // SECTION: Current Weather Handling
 // ------------------------------
 
 /**
- * Fetch current temperature data in Celsius from API
- * @returns {Promise<Object>} - A promise that resolves to the response data from the API
+ * Fetch current temperature data in Celsius from API and update the UI
+ * @param {number} lat - Latitude
+ * @param {number} long - Longitude
  */
-async function getCurrentCelTempData() {
+async function getCurrentCelTempData(lat, long) {
     const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=35.19182118&lon=-106.6941991&units=metric&appid=${apiKeyOne}`
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=${apiKeyOne}`
     );
-    return response.data;
+    changeUITemperatureScales(Math.round(response.data.main.temp));
 }
 /**
- * Fetch current temperature data in Fahrenheit from API
- * @returns {Promise<Object>} - A promise that resolves to the response data from the API
+ * Fetch current temperature data in Fahrenheit from API and update the UI
+ * @param {number} lat - Latitude
+ * @param {number} long - Longitude
  */
-async function getCurrentFahTempData() {
+async function getCurrentFahTempData(lat, long) {
     const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=35.19182118&lon=-106.6941991&units=imperial&appid=${apiKeyOne}`
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=imperial&appid=${apiKeyOne}`
     );
-    return response.data;
+    changeUITemperatureScales(Math.round(response.data.main.temp));
 }
-
-// Fetch and log current weather data
-// What I am currently working on
-let celWeatherObj = await getCurrentCelTempData();
-console.log(celWeatherObj);
-let fahWeatherObj = await getCurrentFahTempData();
-console.log(fahWeatherObj);
 
 // ------------------------------
 // SECTION: Upcoming Weather Handling
 // ------------------------------
 
-/**
- * Fetch upcoming weather data from API
- * @returns {Promise<Object>} - A promise that resolves to the forecast data from the API
- */
-async function getWeatherData() {
-    const response = await axios.get(
-        `http://api.weatherapi.com/v1/forecast.json?key=${apiKeyTwo}&q=48.8567,2.3508&days=6&aqi=no&alerts=no`
-    );
-    return response.data;
-}
+// /**
+//  * Fetch upcoming weather data from API
+//  * @returns {Promise<Object>} - A promise that resolves to the forecast data from the API
+//  */
+// async function getWeatherData() {
+//     const response = await axios.get(
+//         `http://api.weatherapi.com/v1/forecast.json?key=${apiKeyTwo}&q=48.8567,2.3508&days=6&aqi=no&alerts=no`
+//     );
+//     return response.data;
+// }
 
-// Fetch and log forecasted weather
-// TODO: Add current location information and use forecast object to update html elements
-let forecastObj = await getWeatherData();
-console.log(forecastObj);
+// // Fetch and log forecasted weather
+// // TODO: Add current location information and use forecast object to update html elements
+// let forecastObj = await getWeatherData();
+// console.log(forecastObj);
 
 // ------------------------------
 // SECTION: Search Feature Handling
@@ -117,10 +134,10 @@ function changeUITemperatureScales(newTemperatureValue) {
     todayTemperature.innerHTML = newTemperatureValue;
 }
 /**
- * Update UI elements for upcoming weather
- * @param {Array} nextFiveDays - Array of next five days
+ * Update UI elements to display upcoming days
+ * @param {string[]} nextFiveDays - Array of next five days
  */
-function updateUIElements(nextFiveDays) {
+function updateUIElementsDays(nextFiveDays) {
     let daysElementSelectors = [
         "#tomorrow-card h6",
         "#day-three-card h6",
@@ -150,7 +167,9 @@ function handleLocationChange(event) {
 // SECTION: Event Listeners and Initializations
 // ------------------------------
 
-changeUITemperatureScales(Math.round(celWeatherObj.main.temp));
+// Initialize temperature with Celsius data
+
+// Initialize location
 
 // Add event listeners for temperature scale buttons
 let fahrenheitSpan = document.querySelector("#fahrenheit");
@@ -158,11 +177,11 @@ let celsiusSpan = document.querySelector("#celsius");
 
 fahrenheitSpan.addEventListener("click", (event) => {
     event.preventDefault();
-    changeUITemperatureScales(Math.round(fahWeatherObj.main.temp));
+    navigator.geolocation.getCurrentPosition(findGeoLocationCallFah);
 });
 celsiusSpan.addEventListener("click", (event) => {
     event.preventDefault();
-    changeUITemperatureScales(Math.round(celWeatherObj.main.temp));
+    navigator.geolocation.getCurrentPosition(findGeoLocationCallCel);
 });
 
 // Add event listener for search form submission
@@ -171,4 +190,4 @@ form.addEventListener("submit", handleLocationChange);
 
 // Initialize UI elements
 let nextFiveDays = formatFutureDays(now, daysArr, 5);
-updateUIElements(nextFiveDays);
+updateUIElementsDays(nextFiveDays);

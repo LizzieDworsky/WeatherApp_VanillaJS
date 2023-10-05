@@ -1,3 +1,5 @@
+// Time and Days
+
 let now = new Date();
 let daysArr = [
     "Sunday",
@@ -28,12 +30,36 @@ function formatFutureDays(dateObj, daysArr, numberOfDays) {
     return futureDays;
 }
 
-function handleLocationChange(event) {
-    event.preventDefault();
-    let searchInput = document.querySelector("#search-location-input");
-    let locationDiv = document.querySelector("#location-div");
-    locationDiv.innerHTML = searchInput.value;
+// Handle Current Weather / Temperature
+
+async function getCurrentTempData() {
+    const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=35.19182118&lon=-106.6941991&units=metric&appid=0a521eaf234a3a56f45252fac3c737ad`
+    );
+    return response.data;
 }
+
+function changeTemperatureScales(newTemperatureValue) {
+    let todayTemperature = document.querySelector(".temperature-value");
+    todayTemperature.innerHTML = newTemperatureValue;
+}
+
+let weatherObj = await getCurrentTempData();
+console.log(weatherObj);
+
+let fahrenheitSpan = document.querySelector("#fahrenheit");
+let celsiusSpan = document.querySelector("#celsius");
+
+fahrenheitSpan.addEventListener("click", (event) => {
+    event.preventDefault();
+    changeTemperatureScales(70);
+});
+celsiusSpan.addEventListener("click", (event) => {
+    event.preventDefault();
+    changeTemperatureScales(21);
+});
+
+// Handle Upcoming Weather / Temperature
 
 function updateUIElements(nextFiveDays) {
     let daysElementSelectors = [
@@ -51,25 +77,17 @@ function updateUIElements(nextFiveDays) {
     }
 }
 
-function changeTemperatureScales(newTemperatureValue) {
-    let todayTemperature = document.querySelector(".temperature-value");
-    todayTemperature.innerHTML = newTemperatureValue;
-}
-
 let nextFiveDays = formatFutureDays(now, daysArr, 5);
 updateUIElements(nextFiveDays);
+
+// Handle Search Feature
 
 let form = document.querySelector(".search-form");
 form.addEventListener("submit", handleLocationChange);
 
-let fahrenheitSpan = document.querySelector("#fahrenheit");
-let celsiusSpan = document.querySelector("#celsius");
-
-fahrenheitSpan.addEventListener("click", (event) => {
+function handleLocationChange(event) {
     event.preventDefault();
-    changeTemperatureScales(70);
-});
-celsiusSpan.addEventListener("click", (event) => {
-    event.preventDefault();
-    changeTemperatureScales(21);
-});
+    let searchInput = document.querySelector("#search-location-input");
+    let locationDiv = document.querySelector("#location-div");
+    locationDiv.innerHTML = searchInput.value;
+}

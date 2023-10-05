@@ -58,6 +58,12 @@ function findGeoLocationInitialTemp(position) {
     let currentLocation = [position.coords.latitude, position.coords.longitude];
     getCurrentTempByCoordinates(currentLocation[0], currentLocation[1]);
 }
+/**
+ * Handles the click event for fetching current location and initiates a request to get the current weather data based on the geolocation.
+ */
+function handleCurrentLocationCLick() {
+    navigator.geolocation.getCurrentPosition(findGeoLocationInitialTemp);
+}
 
 // ------------------------------
 // SECTION: Current Weather Handling
@@ -185,6 +191,10 @@ form.addEventListener("submit", (e) => {
     getCurrentTempCity(searchInput.value, "metric");
     searchInput.value = "";
 });
+
+// Add event listener for current location button
+let currentButton = document.getElementById("current-location");
+currentButton.addEventListener("click", handleCurrentLocationCLick);
 
 // Initialize UI elements
 let nextFiveDays = formatFutureDays(now, daysArr, 5);

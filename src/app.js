@@ -1,5 +1,8 @@
-// Time and Days
+// ------------------------------
+// SECTION: Time and Days Handling
+// ------------------------------
 
+// Initialize current date and days array
 let now = new Date();
 let daysArr = [
     "Sunday",
@@ -11,6 +14,12 @@ let daysArr = [
     "Saturday",
 ];
 
+/**
+ * Format the current date and time
+ * @param {Date} dateObj - The date object
+ * @param {Array} daysArr - Array of days in a week
+ * @returns {string} - Formatted string
+ */
 function formatTodayDate(dateObj, daysArr) {
     let day = daysArr[dateObj.getDay()];
     let hour = dateObj.getHours();
@@ -20,7 +29,13 @@ function formatTodayDate(dateObj, daysArr) {
     }
     return `${day} ${hour}:${minutes}`;
 }
-
+/**
+ * Get future days based on the current day
+ * @param {Date} dateObj - The date object
+ * @param {Array} daysArr - Array of days in a week
+ * @param {number} numberOfDays - Number of future days to get
+ * @returns {Array} - Array of future days
+ */
 function formatFutureDays(dateObj, daysArr, numberOfDays) {
     let futureDays = [];
     for (let i = 1; i <= numberOfDays; i++) {
@@ -30,8 +45,14 @@ function formatFutureDays(dateObj, daysArr, numberOfDays) {
     return futureDays;
 }
 
-// Handle Current Weather / Temperature
+// ------------------------------
+// SECTION: Current Weather Handling
+// ------------------------------
 
+/**
+ * Fetch current temperature data from API
+ * @returns {Object} - Response data from API
+ */
 async function getCurrentTempData() {
     const response = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?lat=35.19182118&lon=-106.6941991&units=metric&appid=0a521eaf234a3a56f45252fac3c737ad`
@@ -39,28 +60,39 @@ async function getCurrentTempData() {
     return response.data;
 }
 
+// Fetch and log current weather data
+// What I am currently working on
+let weatherObj = await getCurrentTempData();
+console.log(weatherObj);
+
+// ------------------------------
+// SECTION: Upcoming Weather Handling
+// ------------------------------
+
+// TODO: Implement functions to handle upcoming weather data
+
+// ------------------------------
+// SECTION: Search Feature Handling
+// ------------------------------
+
+// TODO: Implement search feature to find weather by location
+
+// ------------------------------
+// SECTION: UI Updating Functions
+// ------------------------------
+
+/**
+ * Update temperature value in UI
+ * @param {number} newTemperatureValue - New temperature value
+ */
 function changeTemperatureScales(newTemperatureValue) {
     let todayTemperature = document.querySelector(".temperature-value");
     todayTemperature.innerHTML = newTemperatureValue;
 }
-
-let weatherObj = await getCurrentTempData();
-console.log(weatherObj);
-
-let fahrenheitSpan = document.querySelector("#fahrenheit");
-let celsiusSpan = document.querySelector("#celsius");
-
-fahrenheitSpan.addEventListener("click", (event) => {
-    event.preventDefault();
-    changeTemperatureScales(70);
-});
-celsiusSpan.addEventListener("click", (event) => {
-    event.preventDefault();
-    changeTemperatureScales(21);
-});
-
-// Handle Upcoming Weather / Temperature
-
+/**
+ * Update UI elements for upcoming weather
+ * @param {Array} nextFiveDays - Array of next five days
+ */
 function updateUIElements(nextFiveDays) {
     let daysElementSelectors = [
         "#tomorrow-card h6",
@@ -76,18 +108,38 @@ function updateUIElements(nextFiveDays) {
         element.innerHTML = nextFiveDays[i];
     }
 }
-
-let nextFiveDays = formatFutureDays(now, daysArr, 5);
-updateUIElements(nextFiveDays);
-
-// Handle Search Feature
-
-let form = document.querySelector(".search-form");
-form.addEventListener("submit", handleLocationChange);
-
+/**
+ * Handle location change on form submit
+ * @param {Event} event - The form submit event
+ */
 function handleLocationChange(event) {
     event.preventDefault();
     let searchInput = document.querySelector("#search-location-input");
     let locationDiv = document.querySelector("#location-div");
     locationDiv.innerHTML = searchInput.value;
 }
+
+// ------------------------------
+// SECTION: Event Listeners and Initializations
+// ------------------------------
+
+// Add event listeners for temperature scale buttons
+let fahrenheitSpan = document.querySelector("#fahrenheit");
+let celsiusSpan = document.querySelector("#celsius");
+
+fahrenheitSpan.addEventListener("click", (event) => {
+    event.preventDefault();
+    changeTemperatureScales(70);
+});
+celsiusSpan.addEventListener("click", (event) => {
+    event.preventDefault();
+    changeTemperatureScales(21);
+});
+
+// Add event listener for search form submission
+let form = document.querySelector(".search-form");
+form.addEventListener("submit", handleLocationChange);
+
+// Initialize UI elements
+let nextFiveDays = formatFutureDays(now, daysArr, 5);
+updateUIElements(nextFiveDays);

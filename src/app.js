@@ -1,4 +1,17 @@
-const apiKeyOne = process.env.apiKeyOne;
+async function fetchApiKey() {
+    try {
+        const response = await axios.get(
+            "/.netlify/functions/mySecureFunction"
+        );
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred while fetching the API key:", error);
+        return null;
+    }
+}
+
+const apiKeyOne = await fetchApiKey();
+
 // TODO: Update icons
 // TODO: Add error handling (no geolocation and axios calls), if not geolocation add default city
 // TODO: Add Precipitation, Humidty, Wind

@@ -11,6 +11,7 @@ async function fetchApiKey() {
 }
 
 const apiKeyOne = await fetchApiKey();
+console.log(apiKeyOne);
 
 // TODO: Update icons
 // TODO: Add error handling (no geolocation and axios calls), if not geolocation add default city

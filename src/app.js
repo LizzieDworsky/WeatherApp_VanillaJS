@@ -1,3 +1,10 @@
+/**
+ * Asynchronously fetches the API key from a secure Netlify function.
+ *
+ * @async
+ * @returns {Promise<string|null>} A promise that resolves to the API key if successful, or null if an error occurs.
+ * @throws Will print an error message to the console if an error occurs.
+ */
 async function fetchApiKey() {
     try {
         const response = await axios.get(
@@ -9,9 +16,7 @@ async function fetchApiKey() {
         return null;
     }
 }
-
 const apiKeyOne = await fetchApiKey();
-console.log(apiKeyOne);
 
 // TODO: Update icons
 // TODO: Add error handling (no geolocation and axios calls), if not geolocation add default city

@@ -3,6 +3,6 @@ exports.handler = async function (event, context) {
 
     return {
         statusCode: 200,
-        key: API_KEY,
+        body: JSON.stringify({ key: API_KEY }),
     };
 };

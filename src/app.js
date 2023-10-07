@@ -3,7 +3,7 @@ async function fetchApiKey() {
         const response = await axios.get(
             "/.netlify/functions/mySecureFunction"
         );
-        return response.data;
+        return response.data.key;
     } catch (error) {
         console.error("An error occurred while fetching the API key:", error);
         return null;

@@ -1,4 +1,9 @@
 import { apiKeyOne, apiKeyTwo } from "../apiKeys.js";
+// TODO: Update icons
+// TODO: Add error handling (no geolocation and axios calls), if not geolocation add default city
+// TODO: Add Precipitation, Humidty, Wind
+// TODO: Add distinction between C and F based on which one if visible
+// TODO: Update timezones
 // ------------------------------
 // SECTION: Time and Days Handling
 // ------------------------------
@@ -91,6 +96,7 @@ async function getCurrentTempCity(city, unit) {
         `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKeyOne}&units=${unit}`
     );
     changeUITemperatureScales(Math.round(response.data.main.temp));
+    handleUILocation(response.data.name);
 }
 
 // ------------------------------
@@ -113,12 +119,6 @@ async function getCurrentTempCity(city, unit) {
 // // Fetch and log forecasted weather
 // let forecastObj = await getWeatherData();
 // console.log(forecastObj);
-
-// ------------------------------
-// SECTION: Search Feature Handling
-// ------------------------------
-
-// TODO: Implement search feature to find weather by location
 
 // ------------------------------
 // SECTION: UI Updating Functions
@@ -187,7 +187,6 @@ let form = document.querySelector(".search-form");
 form.addEventListener("submit", (e) => {
     e.preventDefault();
     let searchInput = document.querySelector("#search-location-input");
-    handleUILocation(searchInput.value);
     getCurrentTempCity(searchInput.value, "metric");
     searchInput.value = "";
 });

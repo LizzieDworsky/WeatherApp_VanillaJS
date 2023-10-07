@@ -1,4 +1,4 @@
-import { apiKeyOne, apiKeyTwo } from "../apiKeys.js";
+const apiKeyOne = process.env.apiKeyOne;
 // TODO: Update icons
 // TODO: Add error handling (no geolocation and axios calls), if not geolocation add default city
 // TODO: Add Precipitation, Humidty, Wind

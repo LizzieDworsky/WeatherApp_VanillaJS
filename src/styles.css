@@ -40,3 +40,7 @@ p {
 .celsius-fahrenheit-span {
     font-size: 50%;
 }
+
+#description {
+    text-transform: capitalize;
+}

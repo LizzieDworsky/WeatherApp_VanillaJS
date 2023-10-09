@@ -85,6 +85,11 @@ async function getCurrentTempByCoordinates(lat, long) {
     );
     changeUITemperatureScales(Math.round(response.data.main.temp));
     handleUILocation(response.data.name);
+    uiWeatherDetails(
+        response.data.weather[0].description,
+        response.data.main.humidity,
+        response.data.wind.speed
+    );
 }
 /**
  * Fetches the current temperature data based on a city name and temperature unit and updates the UI.
@@ -158,6 +163,26 @@ function updateUIElementsDays(nextFiveDays) {
 function handleUILocation(location) {
     let locationDiv = document.querySelector("#location-div");
     locationDiv.innerHTML = location;
+}
+/**
+ * Updates the UI with weather details such as description, humidity, and wind speed.
+ * @param {string} description - The weather description (e.g., "Sunny", "Cloudy").
+ * @param {number} humidity - The current humidity percentage.
+ * @param {number} windSpeed - The current wind speed in the desired unit (e.g., mph, km/h).
+ */
+function uiWeatherDetails(description, humidity, windSpeed) {
+    updateWeatherDetails("description", description);
+    updateWeatherDetails("humidity", humidity);
+    updateWeatherDetails("wind-speed", Math.round(windSpeed));
+}
+/**
+ * Updates a specific weather detail in the UI.
+ * @param {string} idName - The HTML element ID to target for updating.
+ * @param {(string|number)} newValue - The new value to set for the targeted HTML element.
+ */
+function updateWeatherDetails(idName, newValue) {
+    let detailsElement = document.getElementById(idName);
+    detailsElement.innerHTML = newValue;
 }
 
 // ------------------------------

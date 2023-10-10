@@ -1,8 +1,6 @@
 import { apiKeyOne, apiKeyTwo } from "../apiKeys.js";
-// TODO: Update icons
+
 // TODO: Add error handling (no geolocation and axios calls), if not geolocation add default city
-// TODO: Add Precipitation, Humidty, Wind
-// TODO: Add distinction between C and F based on which one if visible
 // TODO: Update timezones
 // ------------------------------
 // SECTION: Time and Days Handling
@@ -93,48 +91,47 @@ function handleCurrentLocationClick() {
 // ------------------------------
 
 /**
+ * Generic function to fetch current temperature data from API and update the UI.
+ * @param {string} apiUrl - The API URL to fetch data from.
+ * @throws {Error} Throws an error if the API call fails.
+ */
+async function fetchAndUpdateWeather(apiUrl) {
+    try {
+        const response = await axios.get(apiUrl);
+        uiWeatherDetails(
+            response.data.main.temp,
+            response.data.weather[0].description,
+            response.data.main.humidity,
+            response.data.wind.speed,
+            response.data.name
+        );
+        updateWeatherIcon(
+            response.data.weather[0].icon,
+            response.data.weather[0].description
+        );
+    } catch (error) {
+        console.error("Failed to fetch data:", error);
+    }
+}
+/**
  * Fetch current temperature data in Celsius from API and update the UI
- * Specifically, it triggers the `uiWeatherDetails` function to update the UI.
+ * Specifically, it triggers the `fetchAndUpdateWeather` function to update the UI.
  * @param {number} lat - Latitude
  * @param {number} long - Longitude
  */
 async function getCurrentTempByCoordinates(lat, long) {
-    const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=${apiKeyOne}`
-    );
-    uiWeatherDetails(
-        response.data.main.temp,
-        response.data.weather[0].description,
-        response.data.main.humidity,
-        response.data.wind.speed,
-        response.data.name
-    );
-    updateWeatherIcon(
-        response.data.weather[0].icon,
-        response.data.weather[0].description
-    );
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=${apiKeyOne}`;
+    fetchAndUpdateWeather(apiUrl);
 }
 /**
  * Fetches the current temperature data based on a city name and temperature unit and updates the UI.
- * Specifically, it triggers the `uiWeatherDetails` function to update the UI.
+ * Specifically, it triggers the `fetchAndUpdateWeather` function to update the UI.
  * @param {string} city - The name of the city.
  * @param {string} unit - The temperature unit ('metric' or 'imperial').
  */
 async function getCurrentTempCity(city, unit) {
-    const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKeyOne}&units=${unit}`
-    );
-    uiWeatherDetails(
-        response.data.main.temp,
-        response.data.weather[0].description,
-        response.data.main.humidity,
-        response.data.wind.speed,
-        response.data.name
-    );
-    updateWeatherIcon(
-        response.data.weather[0].icon,
-        response.data.weather[0].description
-    );
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKeyOne}&units=${unit}`;
+    fetchAndUpdateWeather(apiUrl);
 }
 
 // ------------------------------

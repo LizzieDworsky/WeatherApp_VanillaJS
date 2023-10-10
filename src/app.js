@@ -237,6 +237,17 @@ function updateWeatherIcon(icon, description) {
     );
     weatherIcon.setAttribute("alt", description);
 }
+/**
+ * Updates the class for active and inactive units.
+ * @param {HTMLElement} toActiveElement - The element to set as active.
+ * @param {HTMLElement[]} toInactiveElement - The element to set as inactive.
+ */
+function updateUnitClass(toActiveElement, toInactiveElement) {
+    toActiveElement.classList.add("active");
+    toActiveElement.classList.remove("inactive");
+    toInactiveElement.classList.add("inactive");
+    toInactiveElement.classList.remove("active");
+}
 
 // ------------------------------
 // SECTION: Event Listeners and Initializations
@@ -255,6 +266,7 @@ celsiusSpan.addEventListener("click", (event) => {
     let unitSpan = document.getElementById(elementIds["windUnit"]);
     getCurrentTempCity(locationDiv.innerHTML, "metric");
     unitSpan.innerHTML = "m/s";
+    updateUnitClass(celsiusSpan, fahrenheitSpan);
 });
 fahrenheitSpan.addEventListener("click", (event) => {
     event.preventDefault();
@@ -262,6 +274,7 @@ fahrenheitSpan.addEventListener("click", (event) => {
     let unitSpan = document.getElementById(elementIds["windUnit"]);
     getCurrentTempCity(locationDiv.innerHTML, "imperial");
     unitSpan.innerHTML = "mph";
+    updateUnitClass(fahrenheitSpan, celsiusSpan);
 });
 
 // Add event listener for search form submission
@@ -271,6 +284,7 @@ form.addEventListener("submit", (e) => {
     let searchInput = document.getElementById(elementIds["searchInput"]);
     let unitSpan = document.getElementById(elementIds["windUnit"]);
     getCurrentTempCity(searchInput.value, "metric");
+    updateUnitClass(celsiusSpan, fahrenheitSpan);
     unitSpan.innerHTML = "m/s";
     searchInput.value = "";
 });

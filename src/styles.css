@@ -7,6 +7,10 @@ p {
     margin: 8px;
 }
 
+a:hover {
+    text-decoration: none;
+}
+
 .search-button {
     margin: 0 auto;
     padding: 7px 10px;
@@ -37,7 +41,19 @@ p {
     font-size: 1.75rem;
 }
 
-.celsius-fahrenheit-span {
+.cel-fah-pike {
+    font-size: 75%;
+}
+
+.active {
+    color: black;
+    cursor: default;
+    font-size: 70%;
+}
+.active:hover {
+    color: black;
+}
+.inactive {
     font-size: 50%;
 }
 

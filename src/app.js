@@ -31,6 +31,7 @@ const elementIds = {
     celsius: "celsius",
     dateTime: "current-date-time",
     currentLocation: "current-location-button",
+    weatherIcon: "weather-icon",
 };
 
 /**
@@ -108,6 +109,10 @@ async function getCurrentTempByCoordinates(lat, long) {
         response.data.wind.speed,
         response.data.name
     );
+    updateWeatherIcon(
+        response.data.weather[0].icon,
+        response.data.weather[0].description
+    );
 }
 /**
  * Fetches the current temperature data based on a city name and temperature unit and updates the UI.
@@ -125,6 +130,10 @@ async function getCurrentTempCity(city, unit) {
         response.data.main.humidity,
         response.data.wind.speed,
         response.data.name
+    );
+    updateWeatherIcon(
+        response.data.weather[0].icon,
+        response.data.weather[0].description
     );
 }
 
@@ -195,6 +204,19 @@ function uiWeatherDetails(temp, description, humidity, windSpeed, location) {
 function updateWeatherDetails(key, newValue) {
     let detailsElement = document.getElementById(elementIds[key]);
     detailsElement.innerHTML = newValue;
+}
+/**
+ * Updates the weather icon and its description in the UI.
+ * @param {string} icon - The icon code from the weather API.
+ * @param {string} description - The description of the weather condition.
+ */
+function updateWeatherIcon(icon, description) {
+    let weatherIcon = document.getElementById(elementIds["weatherIcon"]);
+    weatherIcon.setAttribute(
+        "src",
+        `http://openweathermap.org/img/wn/${icon}@2x.png`
+    );
+    weatherIcon.setAttribute("alt", description);
 }
 
 // ------------------------------

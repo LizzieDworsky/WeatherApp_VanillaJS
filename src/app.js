@@ -38,6 +38,19 @@ const daysArr = [
     "Friday",
     "Saturday",
 ];
+const elementIds = {
+    temperatureValue: "temperature-value",
+    description: "description",
+    humidity: "humidity",
+    windSpeed: "wind-speed",
+    location: "location-div",
+    windUnit: "wind-speed-unit",
+    searchInput: "search-location-input",
+    fahrenheit: "fahrenheit",
+    celsius: "celsius",
+    dateTime: "current-date-time",
+    currentLocation: "current-location-button",
+};
 
 /**
  * Format the current date and time
@@ -76,7 +89,10 @@ function formatFutureDays(dateObj, daysArr, numberOfDays) {
 
 /**
  * Fetches the current geolocation and initiates a request to get the current weather data.
- * @param {Object} position - The geolocation position object containing 'coords' with 'latitude' and 'longitude'.
+ * @param {Object} position - The geolocation position object.
+ * @param {Object} position.coords - The coordinates object.
+ * @param {number} position.coords.latitude - The latitude. Passed into `getCurrentTempByCoordinates`.
+ * @param {number} position.coords.longitude - The longitude. Passed into `getCurrentTempByCoordinates`.
  */
 function findGeoLocationInitialTemp(position) {
     let currentLocation = [position.coords.latitude, position.coords.longitude];
@@ -84,8 +100,9 @@ function findGeoLocationInitialTemp(position) {
 }
 /**
  * Handles the click event for fetching current location and initiates a request to get the current weather data based on the geolocation.
+ * Specifically, it triggers the `findGeoLocationInitialTemp` function.
  */
-function handleCurrentLocationCLick() {
+function handleCurrentLocationClick() {
     navigator.geolocation.getCurrentPosition(findGeoLocationInitialTemp);
 }
 
@@ -95,6 +112,7 @@ function handleCurrentLocationCLick() {
 
 /**
  * Fetch current temperature data in Celsius from API and update the UI
+ * Specifically, it triggers the `uiWeatherDetails` function to update the UI.
  * @param {number} lat - Latitude
  * @param {number} long - Longitude
  */
@@ -102,16 +120,17 @@ async function getCurrentTempByCoordinates(lat, long) {
     const response = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=${apiKeyOne}`
     );
-    changeUITemperatureScales(Math.round(response.data.main.temp));
-    handleUILocation(response.data.name);
     uiWeatherDetails(
+        response.data.main.temp,
         response.data.weather[0].description,
         response.data.main.humidity,
-        response.data.wind.speed
+        response.data.wind.speed,
+        response.data.name
     );
 }
 /**
  * Fetches the current temperature data based on a city name and temperature unit and updates the UI.
+ * Specifically, it triggers the `uiWeatherDetails` function to update the UI.
  * @param {string} city - The name of the city.
  * @param {string} unit - The temperature unit ('metric' or 'imperial').
  */
@@ -119,8 +138,13 @@ async function getCurrentTempCity(city, unit) {
     const response = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKeyOne}&units=${unit}`
     );
-    changeUITemperatureScales(Math.round(response.data.main.temp));
-    handleUILocation(response.data.name);
+    uiWeatherDetails(
+        response.data.main.temp,
+        response.data.weather[0].description,
+        response.data.main.humidity,
+        response.data.wind.speed,
+        response.data.name
+    );
 }
 
 // ------------------------------
@@ -149,14 +173,6 @@ async function getCurrentTempCity(city, unit) {
 // ------------------------------
 
 /**
- * Update temperature value in UI
- * @param {number} newTemperatureValue - New temperature value
- */
-function changeUITemperatureScales(newTemperatureValue) {
-    let todayTemperature = document.querySelector(".temperature-value");
-    todayTemperature.innerHTML = newTemperatureValue;
-}
-/**
  * Update UI elements to display upcoming days
  * @param {string[]} nextFiveDays - Array of next five days
  */
@@ -168,7 +184,7 @@ function updateUIElementsDays(nextFiveDays) {
         "#day-five-card h6",
         "#day-six-card h6",
     ];
-    let todayDiv = document.querySelector("#current-date-time");
+    let todayDiv = document.getElementById(elementIds["dateTime"]);
     todayDiv.innerHTML = formatTodayDate(now, daysArr);
     for (let i = 0; i < 5; i++) {
         let element = document.querySelector(daysElementSelectors[i]);
@@ -176,31 +192,27 @@ function updateUIElementsDays(nextFiveDays) {
     }
 }
 /**
- * Updates the displayed location in the UI.
- * @param {string} location - The new location to display.
- */
-function handleUILocation(location) {
-    let locationDiv = document.querySelector("#location-div");
-    locationDiv.innerHTML = location;
-}
-/**
- * Updates the UI with weather details such as description, humidity, and wind speed.
+ * Updates the UI with weather details such as temperature, description, humidity, wind speed, and location.
+ * @param {number} temp - The current temperature in the desired unit (e.g., Celsius, Fahrenheit).
  * @param {string} description - The weather description (e.g., "Sunny", "Cloudy").
  * @param {number} humidity - The current humidity percentage.
  * @param {number} windSpeed - The current wind speed in the desired unit (e.g., mph, km/h).
+ * @param {string} location - The current location (e.g., city name).
  */
-function uiWeatherDetails(description, humidity, windSpeed) {
+function uiWeatherDetails(temp, description, humidity, windSpeed, location) {
+    updateWeatherDetails("temperatureValue", Math.round(temp));
     updateWeatherDetails("description", description);
     updateWeatherDetails("humidity", humidity);
-    updateWeatherDetails("wind-speed", Math.round(windSpeed));
+    updateWeatherDetails("windSpeed", Math.round(windSpeed));
+    updateWeatherDetails("location", location);
 }
 /**
  * Updates a specific weather detail in the UI.
  * @param {string} idName - The HTML element ID to target for updating.
- * @param {(string|number)} newValue - The new value to set for the targeted HTML element.
+ * @param {(string|number)} newValue - The new value to set for the targeted HTML element. Can be a temperature, description, etc.
  */
-function updateWeatherDetails(idName, newValue) {
-    let detailsElement = document.getElementById(idName);
+function updateWeatherDetails(key, newValue) {
+    let detailsElement = document.getElementById(elementIds[key]);
     detailsElement.innerHTML = newValue;
 }
 
@@ -212,32 +224,38 @@ function updateWeatherDetails(idName, newValue) {
 navigator.geolocation.getCurrentPosition(findGeoLocationInitialTemp);
 
 // Add event listeners for temperature scale buttons
-let fahrenheitSpan = document.querySelector("#fahrenheit");
-let celsiusSpan = document.querySelector("#celsius");
+let fahrenheitSpan = document.getElementById(elementIds["fahrenheit"]);
+let celsiusSpan = document.getElementById(elementIds["celsius"]);
 
 celsiusSpan.addEventListener("click", (event) => {
     event.preventDefault();
-    let locationDiv = document.querySelector("#location-div");
+    let locationDiv = document.getElementById(elementIds["location"]);
+    let unitSpan = document.getElementById(elementIds["windUnit"]);
     getCurrentTempCity(locationDiv.innerHTML, "metric");
+    unitSpan.innerHTML = "m/s";
 });
 fahrenheitSpan.addEventListener("click", (event) => {
     event.preventDefault();
-    let locationDiv = document.querySelector("#location-div");
+    let locationDiv = document.getElementById(elementIds["location"]);
+    let unitSpan = document.getElementById(elementIds["windUnit"]);
     getCurrentTempCity(locationDiv.innerHTML, "imperial");
+    unitSpan.innerHTML = "mph";
 });
 
 // Add event listener for search form submission
 let form = document.querySelector(".search-form");
 form.addEventListener("submit", (e) => {
     e.preventDefault();
-    let searchInput = document.querySelector("#search-location-input");
+    let searchInput = document.getElementById(elementIds["searchInput"]);
+    let unitSpan = document.getElementById(elementIds["windUnit"]);
     getCurrentTempCity(searchInput.value, "metric");
+    unitSpan.innerHTML = "m/s";
     searchInput.value = "";
 });
 
 // Add event listener for current location button
-let currentButton = document.getElementById("current-location");
-currentButton.addEventListener("click", handleCurrentLocationCLick);
+let currentButton = document.getElementById(elementIds["currentLocation"]);
+currentButton.addEventListener("click", handleCurrentLocationClick);
 
 // Initialize UI elements
 let nextFiveDays = formatFutureDays(now, daysArr, 5);

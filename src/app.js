@@ -83,12 +83,12 @@ async function getCurrentTempByCoordinates(lat, long) {
     const response = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=${apiKeyOne}`
     );
-    changeUITemperatureScales(Math.round(response.data.main.temp));
-    handleUILocation(response.data.name);
     uiWeatherDetails(
+        response.data.main.temp,
         response.data.weather[0].description,
         response.data.main.humidity,
-        response.data.wind.speed
+        response.data.wind.speed,
+        response.data.name
     );
 }
 /**
@@ -100,8 +100,13 @@ async function getCurrentTempCity(city, unit) {
     const response = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKeyOne}&units=${unit}`
     );
-    changeUITemperatureScales(Math.round(response.data.main.temp));
-    handleUILocation(response.data.name);
+    uiWeatherDetails(
+        response.data.main.temp,
+        response.data.weather[0].description,
+        response.data.main.humidity,
+        response.data.wind.speed,
+        response.data.name
+    );
 }
 
 // ------------------------------
@@ -130,14 +135,6 @@ async function getCurrentTempCity(city, unit) {
 // ------------------------------
 
 /**
- * Update temperature value in UI
- * @param {number} newTemperatureValue - New temperature value
- */
-function changeUITemperatureScales(newTemperatureValue) {
-    let todayTemperature = document.querySelector(".temperature-value");
-    todayTemperature.innerHTML = newTemperatureValue;
-}
-/**
  * Update UI elements to display upcoming days
  * @param {string[]} nextFiveDays - Array of next five days
  */
@@ -157,23 +154,17 @@ function updateUIElementsDays(nextFiveDays) {
     }
 }
 /**
- * Updates the displayed location in the UI.
- * @param {string} location - The new location to display.
- */
-function handleUILocation(location) {
-    let locationDiv = document.querySelector("#location-div");
-    locationDiv.innerHTML = location;
-}
-/**
  * Updates the UI with weather details such as description, humidity, and wind speed.
  * @param {string} description - The weather description (e.g., "Sunny", "Cloudy").
  * @param {number} humidity - The current humidity percentage.
  * @param {number} windSpeed - The current wind speed in the desired unit (e.g., mph, km/h).
  */
-function uiWeatherDetails(description, humidity, windSpeed) {
+function uiWeatherDetails(temp, description, humidity, windSpeed, location) {
+    updateWeatherDetails("temperature-value", Math.round(temp));
     updateWeatherDetails("description", description);
     updateWeatherDetails("humidity", humidity);
     updateWeatherDetails("wind-speed", Math.round(windSpeed));
+    updateWeatherDetails("location-div", location);
 }
 /**
  * Updates a specific weather detail in the UI.
@@ -199,12 +190,16 @@ let celsiusSpan = document.querySelector("#celsius");
 celsiusSpan.addEventListener("click", (event) => {
     event.preventDefault();
     let locationDiv = document.querySelector("#location-div");
+    let unitSpan = document.getElementById("wind-speed-unit");
     getCurrentTempCity(locationDiv.innerHTML, "metric");
+    unitSpan.innerHTML = "m/s";
 });
 fahrenheitSpan.addEventListener("click", (event) => {
     event.preventDefault();
     let locationDiv = document.querySelector("#location-div");
+    let unitSpan = document.getElementById("wind-speed-unit");
     getCurrentTempCity(locationDiv.innerHTML, "imperial");
+    unitSpan.innerHTML = "mph";
 });
 
 // Add event listener for search form submission

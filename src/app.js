@@ -18,15 +18,11 @@ async function fetchApiKey() {
 }
 const apiKeyOne = await fetchApiKey();
 
-// TODO: Update icons
-// TODO: Add error handling (no geolocation and axios calls), if not geolocation add default city
-// TODO: Add Precipitation, Humidty, Wind
-// TODO: Add distinction between C and F based on which one if visible
-// TODO: Update timezones
 // ------------------------------
 // SECTION: Time and Days Handling
 // ------------------------------
 
+// TODO: Update timezones
 // Initialize current date and days array
 const now = new Date();
 const daysArr = [
@@ -89,6 +85,16 @@ function formatFutureDays(dateObj, daysArr, numberOfDays) {
 // ------------------------------
 
 /**
+ * Handles the error when geolocation fails. Defaults to weather data for Albuquerque and hides the current location button.
+ * @param {PositionError} error - The geolocation error object.
+ */
+function handleGeoLocationError(error) {
+    console.error("Geolocation failed:", error);
+    getCurrentTempCity("Albuquerque", "metric");
+    let locationButton = document.getElementById(elementIds["currentLocation"]);
+    locationButton.style.display = "none";
+}
+/**
  * Fetches the current geolocation and initiates a request to get the current weather data.
  * @param {Object} position - The geolocation position object.
  * @param {Object} position.coords - The coordinates object.
@@ -101,10 +107,13 @@ function findGeoLocationInitialTemp(position) {
 }
 /**
  * Handles the click event for fetching current location and initiates a request to get the current weather data based on the geolocation.
- * Specifically, it triggers the `findGeoLocationInitialTemp` function.
+ * Specifically, it triggers the `findGeoLocationInitialTemp` function or `handleGeoLocationError` if geolocation fails.
  */
 function handleCurrentLocationClick() {
-    navigator.geolocation.getCurrentPosition(findGeoLocationInitialTemp);
+    navigator.geolocation.getCurrentPosition(
+        findGeoLocationInitialTemp,
+        handleGeoLocationError
+    );
 }
 
 // ------------------------------
@@ -112,48 +121,47 @@ function handleCurrentLocationClick() {
 // ------------------------------
 
 /**
+ * Generic function to fetch current temperature data from API and update the UI.
+ * @param {string} apiUrl - The API URL to fetch data from.
+ * @throws {Error} Throws an error if the API call fails.
+ */
+async function fetchAndUpdateWeather(apiUrl) {
+    try {
+        const response = await axios.get(apiUrl);
+        uiWeatherDetails(
+            response.data.main.temp,
+            response.data.weather[0].description,
+            response.data.main.humidity,
+            response.data.wind.speed,
+            `${response.data.name}, ${response.data.sys.country}`
+        );
+        updateWeatherIcon(
+            response.data.weather[0].icon,
+            response.data.weather[0].description
+        );
+    } catch (error) {
+        console.error("Failed to fetch data:", error);
+    }
+}
+/**
  * Fetch current temperature data in Celsius from API and update the UI
- * Specifically, it triggers the `uiWeatherDetails` function to update the UI.
+ * Specifically, it triggers the `fetchAndUpdateWeather` function to update the UI.
  * @param {number} lat - Latitude
  * @param {number} long - Longitude
  */
 async function getCurrentTempByCoordinates(lat, long) {
-    const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=${apiKeyOne}`
-    );
-    uiWeatherDetails(
-        response.data.main.temp,
-        response.data.weather[0].description,
-        response.data.main.humidity,
-        response.data.wind.speed,
-        response.data.name
-    );
-    updateWeatherIcon(
-        response.data.weather[0].icon,
-        response.data.weather[0].description
-    );
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=${apiKeyOne}`;
+    fetchAndUpdateWeather(apiUrl);
 }
 /**
  * Fetches the current temperature data based on a city name and temperature unit and updates the UI.
- * Specifically, it triggers the `uiWeatherDetails` function to update the UI.
+ * Specifically, it triggers the `fetchAndUpdateWeather` function to update the UI.
  * @param {string} city - The name of the city.
  * @param {string} unit - The temperature unit ('metric' or 'imperial').
  */
 async function getCurrentTempCity(city, unit) {
-    const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKeyOne}&units=${unit}`
-    );
-    uiWeatherDetails(
-        response.data.main.temp,
-        response.data.weather[0].description,
-        response.data.main.humidity,
-        response.data.wind.speed,
-        response.data.name
-    );
-    updateWeatherIcon(
-        response.data.weather[0].icon,
-        response.data.weather[0].description
-    );
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKeyOne}&units=${unit}`;
+    fetchAndUpdateWeather(apiUrl);
 }
 
 // ------------------------------
@@ -253,39 +261,66 @@ function updateUnitClass(toActiveElement, toInactiveElement) {
 // SECTION: Event Listeners and Initializations
 // ------------------------------
 
+/**
+ * Handles click and submit events to update temperature units, fetch current temperature,
+ * and update UI classes.
+ *
+ * @param {Event} event - The DOM event triggered.
+ * @param {string} unit - The unit of measurement ("metric" or "imperial").
+ * @param {HTMLElement} activeSpan - The span element to be activated (will receive a special CSS class).
+ * @param {HTMLElement} inactiveSpan - The span element to be deactivated (will lose the special CSS class).
+ * @param {string} location - The location for which to get the current temperature.
+ */
+function handleClicksSubmit(event, unit, activeSpan, inactiveSpan, location) {
+    event.preventDefault();
+    let unitSpan = document.getElementById(elementIds["windUnit"]);
+    unitSpan.innerHTML = unit === "metric" ? "m/s" : "mph";
+    getCurrentTempCity(location, unit);
+    updateUnitClass(activeSpan, inactiveSpan);
+}
+
 // Initialize temperature with Celsius data
-navigator.geolocation.getCurrentPosition(findGeoLocationInitialTemp);
+navigator.geolocation.getCurrentPosition(
+    findGeoLocationInitialTemp,
+    handleGeoLocationError
+);
 
 // Add event listeners for temperature scale buttons
 let fahrenheitSpan = document.getElementById(elementIds["fahrenheit"]);
 let celsiusSpan = document.getElementById(elementIds["celsius"]);
 
 celsiusSpan.addEventListener("click", (event) => {
-    event.preventDefault();
     let locationDiv = document.getElementById(elementIds["location"]);
-    let unitSpan = document.getElementById(elementIds["windUnit"]);
-    getCurrentTempCity(locationDiv.innerHTML, "metric");
-    unitSpan.innerHTML = "m/s";
-    updateUnitClass(celsiusSpan, fahrenheitSpan);
+    handleClicksSubmit(
+        event,
+        "metric",
+        celsiusSpan,
+        fahrenheitSpan,
+        locationDiv.innerHTML
+    );
 });
 fahrenheitSpan.addEventListener("click", (event) => {
-    event.preventDefault();
     let locationDiv = document.getElementById(elementIds["location"]);
-    let unitSpan = document.getElementById(elementIds["windUnit"]);
-    getCurrentTempCity(locationDiv.innerHTML, "imperial");
-    unitSpan.innerHTML = "mph";
-    updateUnitClass(fahrenheitSpan, celsiusSpan);
+    handleClicksSubmit(
+        event,
+        "imperial",
+        fahrenheitSpan,
+        celsiusSpan,
+        locationDiv.innerHTML
+    );
 });
 
 // Add event listener for search form submission
 let form = document.querySelector(".search-form");
-form.addEventListener("submit", (e) => {
-    e.preventDefault();
+form.addEventListener("submit", (event) => {
     let searchInput = document.getElementById(elementIds["searchInput"]);
-    let unitSpan = document.getElementById(elementIds["windUnit"]);
-    getCurrentTempCity(searchInput.value, "metric");
-    updateUnitClass(celsiusSpan, fahrenheitSpan);
-    unitSpan.innerHTML = "m/s";
+    handleClicksSubmit(
+        event,
+        "metric",
+        celsiusSpan,
+        fahrenheitSpan,
+        searchInput.value
+    );
     searchInput.value = "";
 });
 

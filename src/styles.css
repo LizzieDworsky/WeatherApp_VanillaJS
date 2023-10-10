@@ -1,16 +1,13 @@
 body {
     margin-top: 2em;
 }
-
 p {
     display: inline;
     margin: 8px;
 }
-
 a:hover {
     text-decoration: none;
 }
-
 .search-button {
     margin: 0 auto;
     padding: 7px 10px;
@@ -22,13 +19,11 @@ a:hover {
     cursor: pointer;
     transition: all 200ms ease-in-out;
 }
-
 .search-button:hover {
     background-color: black;
     border-color: black;
     color: white;
 }
-
 .footer-watermark {
     position: fixed;
     width: 100%;
@@ -36,15 +31,12 @@ a:hover {
     text-align: center;
     bottom: 2em;
 }
-
 .h3 {
     font-size: 1.75rem;
 }
-
 .cel-fah-pike {
     font-size: 75%;
 }
-
 .active {
     color: black;
     cursor: default;
@@ -56,7 +48,22 @@ a:hover {
 .inactive {
     font-size: 50%;
 }
-
+.celsius-fahrenheit-span {
+    opacity: 0.6;
+}
+.pike {
+    font-size: 150%;
+}
+.min {
+    opacity: 0.6;
+}
+.forecast-day {
+    opacity: 0.6;
+}
+#forcast-row {
+    text-align: center;
+    margin-top: 10px;
+}
 #description {
     text-transform: capitalize;
 }

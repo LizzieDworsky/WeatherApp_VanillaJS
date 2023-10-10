@@ -29,6 +29,7 @@ const elementIds = {
     dateTime: "current-date-time",
     currentLocation: "current-location-button",
     weatherIcon: "weather-icon",
+    forecastRow: "forcast-row",
 };
 
 /**
@@ -166,6 +167,24 @@ async function getCurrentTempCity(city, unit) {
 // // Fetch and log forecasted weather
 // let forecastObj = await getWeatherData();
 // console.log(forecastObj);
+
+let forecastHtml = "";
+for (let i = 0; i < 5; i++) {
+    forecastHtml += `<div class="card col m-4">
+    <div class="card-body">
+        <h5 class="forecast-day">Friday</h5>
+        <img src="http://openweathermap.org/img/wn/04d@2x.png" alt="" class="forecast-icons" />
+        <h5>
+            <span class="forecast-temp max">41°</span>
+            <span class="forecast-temp pike">|</span>
+            <span class="forecast-temp min">28°</span>
+        </h5>
+    </div>
+</div>
+`;
+}
+let forcastRow = document.getElementById(elementIds["forecastRow"]);
+forcastRow.innerHTML = forecastHtml;
 
 // ------------------------------
 // SECTION: UI Updating Functions
@@ -311,5 +330,5 @@ let currentButton = document.getElementById(elementIds["currentLocation"]);
 currentButton.addEventListener("click", handleCurrentLocationClick);
 
 // Initialize UI elements
-let nextFiveDays = formatFutureDays(now, daysArr, 5);
-updateUIElementsDays(nextFiveDays);
+// let nextFiveDays = formatFutureDays(now, daysArr, 5);
+// updateUIElementsDays(nextFiveDays);

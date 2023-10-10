@@ -234,6 +234,24 @@ function updateUnitClass(toActiveElement, toInactiveElement) {
 // SECTION: Event Listeners and Initializations
 // ------------------------------
 
+/**
+ * Handles click and submit events to update temperature units, fetch current temperature,
+ * and update UI classes.
+ *
+ * @param {Event} event - The DOM event triggered.
+ * @param {string} unit - The unit of measurement ("metric" or "imperial").
+ * @param {HTMLElement} activeSpan - The span element to be activated (will receive a special CSS class).
+ * @param {HTMLElement} inactiveSpan - The span element to be deactivated (will lose the special CSS class).
+ * @param {string} location - The location for which to get the current temperature.
+ */
+function handleClicksSubmit(event, unit, activeSpan, inactiveSpan, location) {
+    event.preventDefault();
+    let unitSpan = document.getElementById(elementIds["windUnit"]);
+    unitSpan.innerHTML = unit === "metric" ? "m/s" : "mph";
+    getCurrentTempCity(location, unit);
+    updateUnitClass(activeSpan, inactiveSpan);
+}
+
 // Initialize temperature with Celsius data
 navigator.geolocation.getCurrentPosition(findGeoLocationInitialTemp);
 
@@ -242,31 +260,37 @@ let fahrenheitSpan = document.getElementById(elementIds["fahrenheit"]);
 let celsiusSpan = document.getElementById(elementIds["celsius"]);
 
 celsiusSpan.addEventListener("click", (event) => {
-    event.preventDefault();
     let locationDiv = document.getElementById(elementIds["location"]);
-    let unitSpan = document.getElementById(elementIds["windUnit"]);
-    getCurrentTempCity(locationDiv.innerHTML, "metric");
-    unitSpan.innerHTML = "m/s";
-    updateUnitClass(celsiusSpan, fahrenheitSpan);
+    handleClicksSubmit(
+        event,
+        "metric",
+        celsiusSpan,
+        fahrenheitSpan,
+        locationDiv.innerHTML
+    );
 });
 fahrenheitSpan.addEventListener("click", (event) => {
-    event.preventDefault();
     let locationDiv = document.getElementById(elementIds["location"]);
-    let unitSpan = document.getElementById(elementIds["windUnit"]);
-    getCurrentTempCity(locationDiv.innerHTML, "imperial");
-    unitSpan.innerHTML = "mph";
-    updateUnitClass(fahrenheitSpan, celsiusSpan);
+    handleClicksSubmit(
+        event,
+        "imperial",
+        fahrenheitSpan,
+        celsiusSpan,
+        locationDiv.innerHTML
+    );
 });
 
 // Add event listener for search form submission
 let form = document.querySelector(".search-form");
-form.addEventListener("submit", (e) => {
-    e.preventDefault();
+form.addEventListener("submit", (event) => {
     let searchInput = document.getElementById(elementIds["searchInput"]);
-    let unitSpan = document.getElementById(elementIds["windUnit"]);
-    getCurrentTempCity(searchInput.value, "metric");
-    updateUnitClass(celsiusSpan, fahrenheitSpan);
-    unitSpan.innerHTML = "m/s";
+    handleClicksSubmit(
+        event,
+        "metric",
+        celsiusSpan,
+        fahrenheitSpan,
+        searchInput.value
+    );
     searchInput.value = "";
 });
 

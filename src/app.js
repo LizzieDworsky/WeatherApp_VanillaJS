@@ -19,6 +19,19 @@ const daysArr = [
     "Friday",
     "Saturday",
 ];
+const elementIds = {
+    temperatureValue: "temperature-value",
+    description: "description",
+    humidity: "humidity",
+    windSpeed: "wind-speed",
+    location: "location-div",
+    windUnit: "wind-speed-unit",
+    searchInput: "search-location-input",
+    fahrenheit: "fahrenheit",
+    celsius: "celsius",
+    dateTime: "current-date-time",
+    currentLocation: "current-location-button",
+};
 
 /**
  * Format the current date and time
@@ -70,7 +83,7 @@ function findGeoLocationInitialTemp(position) {
  * Handles the click event for fetching current location and initiates a request to get the current weather data based on the geolocation.
  * Specifically, it triggers the `findGeoLocationInitialTemp` function.
  */
-function handleCurrentLocationCLick() {
+function handleCurrentLocationClick() {
     navigator.geolocation.getCurrentPosition(findGeoLocationInitialTemp);
 }
 
@@ -152,7 +165,7 @@ function updateUIElementsDays(nextFiveDays) {
         "#day-five-card h6",
         "#day-six-card h6",
     ];
-    let todayDiv = document.querySelector("#current-date-time");
+    let todayDiv = document.getElementById(elementIds["dateTime"]);
     todayDiv.innerHTML = formatTodayDate(now, daysArr);
     for (let i = 0; i < 5; i++) {
         let element = document.querySelector(daysElementSelectors[i]);
@@ -168,19 +181,19 @@ function updateUIElementsDays(nextFiveDays) {
  * @param {string} location - The current location (e.g., city name).
  */
 function uiWeatherDetails(temp, description, humidity, windSpeed, location) {
-    updateWeatherDetails("temperature-value", Math.round(temp));
+    updateWeatherDetails("temperatureValue", Math.round(temp));
     updateWeatherDetails("description", description);
     updateWeatherDetails("humidity", humidity);
-    updateWeatherDetails("wind-speed", Math.round(windSpeed));
-    updateWeatherDetails("location-div", location);
+    updateWeatherDetails("windSpeed", Math.round(windSpeed));
+    updateWeatherDetails("location", location);
 }
 /**
  * Updates a specific weather detail in the UI.
  * @param {string} idName - The HTML element ID to target for updating.
  * @param {(string|number)} newValue - The new value to set for the targeted HTML element. Can be a temperature, description, etc.
  */
-function updateWeatherDetails(idName, newValue) {
-    let detailsElement = document.getElementById(idName);
+function updateWeatherDetails(key, newValue) {
+    let detailsElement = document.getElementById(elementIds[key]);
     detailsElement.innerHTML = newValue;
 }
 
@@ -192,20 +205,20 @@ function updateWeatherDetails(idName, newValue) {
 navigator.geolocation.getCurrentPosition(findGeoLocationInitialTemp);
 
 // Add event listeners for temperature scale buttons
-let fahrenheitSpan = document.getElementById("fahrenheit");
-let celsiusSpan = document.getElementById("celsius");
+let fahrenheitSpan = document.getElementById(elementIds["fahrenheit"]);
+let celsiusSpan = document.getElementById(elementIds["celsius"]);
 
 celsiusSpan.addEventListener("click", (event) => {
     event.preventDefault();
-    let locationDiv = document.getElementById("location-div");
-    let unitSpan = document.getElementById("wind-speed-unit");
+    let locationDiv = document.getElementById(elementIds["location"]);
+    let unitSpan = document.getElementById(elementIds["windUnit"]);
     getCurrentTempCity(locationDiv.innerHTML, "metric");
     unitSpan.innerHTML = "m/s";
 });
 fahrenheitSpan.addEventListener("click", (event) => {
     event.preventDefault();
-    let locationDiv = document.getElementById("location-div");
-    let unitSpan = document.getElementById("wind-speed-unit");
+    let locationDiv = document.getElementById(elementIds["location"]);
+    let unitSpan = document.getElementById(elementIds["windUnit"]);
     getCurrentTempCity(locationDiv.innerHTML, "imperial");
     unitSpan.innerHTML = "mph";
 });
@@ -214,16 +227,16 @@ fahrenheitSpan.addEventListener("click", (event) => {
 let form = document.querySelector(".search-form");
 form.addEventListener("submit", (e) => {
     e.preventDefault();
-    let searchInput = document.getElementById("search-location-input");
-    let unitSpan = document.getElementById("wind-speed-unit");
+    let searchInput = document.getElementById(elementIds["searchInput"]);
+    let unitSpan = document.getElementById(elementIds["windUnit"]);
     getCurrentTempCity(searchInput.value, "metric");
     unitSpan.innerHTML = "m/s";
     searchInput.value = "";
 });
 
 // Add event listener for current location button
-let currentButton = document.getElementById("current-location");
-currentButton.addEventListener("click", handleCurrentLocationCLick);
+let currentButton = document.getElementById(elementIds["currentLocation"]);
+currentButton.addEventListener("click", handleCurrentLocationClick);
 
 // Initialize UI elements
 let nextFiveDays = formatFutureDays(now, daysArr, 5);

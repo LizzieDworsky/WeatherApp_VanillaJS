@@ -1,11 +1,10 @@
 import { apiKeyOne, apiKeyTwo } from "../apiKeys.js";
 
-// TODO: Add error handling (no geolocation and axios calls), if not geolocation add default city
-// TODO: Update timezones
 // ------------------------------
 // SECTION: Time and Days Handling
 // ------------------------------
 
+// TODO: Update timezones
 // Initialize current date and days array
 const now = new Date();
 const daysArr = [
@@ -68,6 +67,16 @@ function formatFutureDays(dateObj, daysArr, numberOfDays) {
 // ------------------------------
 
 /**
+ * Handles the error when geolocation fails. Defaults to weather data for Albuquerque and hides the current location button.
+ * @param {PositionError} error - The geolocation error object.
+ */
+function handleGeoLocationError(error) {
+    console.error("Geolocation failed:", error);
+    getCurrentTempCity("Albuquerque", "metric");
+    let locationButton = document.getElementById(elementIds["currentLocation"]);
+    locationButton.style.display = "none";
+}
+/**
  * Fetches the current geolocation and initiates a request to get the current weather data.
  * @param {Object} position - The geolocation position object.
  * @param {Object} position.coords - The coordinates object.
@@ -80,10 +89,13 @@ function findGeoLocationInitialTemp(position) {
 }
 /**
  * Handles the click event for fetching current location and initiates a request to get the current weather data based on the geolocation.
- * Specifically, it triggers the `findGeoLocationInitialTemp` function.
+ * Specifically, it triggers the `findGeoLocationInitialTemp` function or `handleGeoLocationError` if geolocation fails.
  */
 function handleCurrentLocationClick() {
-    navigator.geolocation.getCurrentPosition(findGeoLocationInitialTemp);
+    navigator.geolocation.getCurrentPosition(
+        findGeoLocationInitialTemp,
+        handleGeoLocationError
+    );
 }
 
 // ------------------------------
@@ -103,7 +115,7 @@ async function fetchAndUpdateWeather(apiUrl) {
             response.data.weather[0].description,
             response.data.main.humidity,
             response.data.wind.speed,
-            response.data.name
+            `${response.data.name}, ${response.data.sys.country}`
         );
         updateWeatherIcon(
             response.data.weather[0].icon,
@@ -250,7 +262,10 @@ function handleClicksSubmit(event, unit, activeSpan, inactiveSpan, location) {
 }
 
 // Initialize temperature with Celsius data
-navigator.geolocation.getCurrentPosition(findGeoLocationInitialTemp);
+navigator.geolocation.getCurrentPosition(
+    findGeoLocationInitialTemp,
+    handleGeoLocationError
+);
 
 // Add event listeners for temperature scale buttons
 let fahrenheitSpan = document.getElementById(elementIds["fahrenheit"]);

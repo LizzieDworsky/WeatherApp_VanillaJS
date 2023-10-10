@@ -168,11 +168,25 @@ async function getCurrentTempCity(city, unit) {
 // let forecastObj = await getWeatherData();
 // console.log(forecastObj);
 
+let futureDays = formatFutureDays(now, daysArr, 6);
+let arrayOfForecastObj = [
+    { day: "Friday" },
+    { day: "Saturday" },
+    { day: "Sunday" },
+    { day: "Monday" },
+    { day: "Tuesday" },
+    { day: "Wednesday" },
+];
+
+for (let i = 0; i < futureDays.length; i++) {
+    arrayOfForecastObj[i]["day"] = futureDays[i];
+}
+
 let forecastHtml = "";
-for (let i = 0; i < 5; i++) {
-    forecastHtml += `<div class="card col m-4">
+arrayOfForecastObj.forEach((forecastObj) => {
+    forecastHtml += `<div class="card m-3">
     <div class="card-body">
-        <h5 class="forecast-day">Friday</h5>
+        <h5 class="forecast-day">${forecastObj["day"]}</h5>
         <img src="http://openweathermap.org/img/wn/04d@2x.png" alt="" class="forecast-icons" />
         <h5>
             <span class="forecast-temp max">41°</span>
@@ -182,7 +196,8 @@ for (let i = 0; i < 5; i++) {
     </div>
 </div>
 `;
-}
+});
+
 let forcastRow = document.getElementById(elementIds["forecastRow"]);
 forcastRow.innerHTML = forecastHtml;
 
@@ -190,25 +205,6 @@ forcastRow.innerHTML = forecastHtml;
 // SECTION: UI Updating Functions
 // ------------------------------
 
-/**
- * Update UI elements to display upcoming days
- * @param {string[]} nextFiveDays - Array of next five days
- */
-function updateUIElementsDays(nextFiveDays) {
-    let daysElementSelectors = [
-        "#tomorrow-card h6",
-        "#day-three-card h6",
-        "#day-four-card h6",
-        "#day-five-card h6",
-        "#day-six-card h6",
-    ];
-    let todayDiv = document.getElementById(elementIds["dateTime"]);
-    todayDiv.innerHTML = formatTodayDate(now, daysArr);
-    for (let i = 0; i < 5; i++) {
-        let element = document.querySelector(daysElementSelectors[i]);
-        element.innerHTML = nextFiveDays[i];
-    }
-}
 /**
  * Updates the UI with weather details such as temperature, description, humidity, wind speed, and location.
  * @param {number} temp - The current temperature in the desired unit (e.g., Celsius, Fahrenheit).
@@ -328,7 +324,3 @@ form.addEventListener("submit", (event) => {
 // Add event listener for current location button
 let currentButton = document.getElementById(elementIds["currentLocation"]);
 currentButton.addEventListener("click", handleCurrentLocationClick);
-
-// Initialize UI elements
-// let nextFiveDays = formatFutureDays(now, daysArr, 5);
-// updateUIElementsDays(nextFiveDays);

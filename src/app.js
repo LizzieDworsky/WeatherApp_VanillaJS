@@ -1,4 +1,4 @@
-import { apiKeyOne, apiKeyTwo } from "../apiKeys.js";
+import { apiKey } from "../apiKeys.js";
 
 // ------------------------------
 // SECTION: Time and Days Handling
@@ -113,15 +113,15 @@ async function fetchAndUpdateCurrentWeather(apiUrl) {
     try {
         const response = await axios.get(apiUrl);
         updateWeatherDetails(
-            response.data.main.temp,
-            response.data.weather[0].description,
-            response.data.main.humidity,
+            response.data.temperature.current,
+            response.data.condition.description,
+            response.data.temperature.humidity,
             response.data.wind.speed,
-            `${response.data.name}, ${response.data.sys.country}`
+            `${response.data.city}, ${response.data.country}`
         );
         updateWeatherIcon(
-            response.data.weather[0].icon,
-            response.data.weather[0].description
+            response.data.condition.icon_url,
+            response.data.condition.description
         );
     } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -134,7 +134,7 @@ async function fetchAndUpdateCurrentWeather(apiUrl) {
  * @param {number} long - Longitude
  */
 async function getCurrentTempByCoordinates(lat, long) {
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=${apiKeyOne}`;
+    const apiUrl = `https://api.shecodes.io/weather/v1/current?lat=${lat}&lon=${long}&key=${apiKey}&units=metric`;
     fetchAndUpdateCurrentWeather(apiUrl);
 }
 /**
@@ -144,7 +144,7 @@ async function getCurrentTempByCoordinates(lat, long) {
  * @param {string} unit - The temperature unit ('metric' or 'imperial').
  */
 async function getCurrentTempCity(city, unit) {
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKeyOne}&units=${unit}`;
+    const apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}&units=${unit}`;
     fetchAndUpdateCurrentWeather(apiUrl);
 }
 
@@ -172,7 +172,7 @@ async function fetchAndUpdateForecast(apiUrl) {
  * @param {number} long - The longitude.
  */
 function getForecastByCoordinates(lat, long) {
-    let apiUrl = `https://api.shecodes.io/weather/v1/forecast?lat=${lat}&lon=${long}&key=${apiKeyTwo}&units=metric`;
+    let apiUrl = `https://api.shecodes.io/weather/v1/forecast?lat=${lat}&lon=${long}&key=${apiKey}&units=metric`;
     fetchAndUpdateForecast(apiUrl);
 }
 /**
@@ -264,10 +264,7 @@ function updateWeatherDetailsUI(key, newValue) {
  */
 function updateWeatherIcon(icon, description) {
     let weatherIcon = document.getElementById(elementIds["weatherIcon"]);
-    weatherIcon.setAttribute(
-        "src",
-        `http://openweathermap.org/img/wn/${icon}@2x.png`
-    );
+    weatherIcon.setAttribute("src", icon);
     weatherIcon.setAttribute("alt", description);
 }
 /**

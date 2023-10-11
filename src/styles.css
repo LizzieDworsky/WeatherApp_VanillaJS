@@ -1,5 +1,7 @@
 body {
     margin-top: 2em;
+    background-color: #d3d3d3ce;
+    font-family: "Red Hat Display", sans-serif;
 }
 p {
     display: inline;
@@ -8,16 +10,35 @@ p {
 a:hover {
     text-decoration: none;
 }
+h4 {
+    margin: 20px;
+}
+.styled-section-one {
+    background-color: #a1acbd;
+    padding: 1px;
+    border-radius: 10px;
+}
+.styled-section-two {
+    background-color: #2e9dee;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 3px 10px -2px black;
+    color: white;
+}
+.page-title {
+    color: #2e9dee;
+    font-weight: 800;
+}
 .search-button {
     margin: 0 auto;
-    padding: 7px 10px;
-    border: 1px solid white;
-    background-color: white;
-    color: black;
-    border-radius: 10px;
-    box-shadow: 3px 3px 5px grey;
+    padding: 5px 8px;
+    border: 1px solid #2e9dee;
+    background-color: #2e9dee;
+    color: white;
+    border-radius: 5px;
+    box-shadow: 2px 2px 8px 1px grey;
     cursor: pointer;
-    transition: all 200ms ease-in-out;
+    transition: all 250ms ease-in-out;
 }
 .search-button:hover {
     background-color: black;
@@ -38,15 +59,20 @@ a:hover {
     font-size: 75%;
 }
 .active {
-    color: black;
+    color: white;
     cursor: default;
     font-size: 70%;
 }
 .active:hover {
-    color: black;
+    color: white;
 }
 .inactive {
     font-size: 50%;
+    color: white;
+    transition: all 250ms ease-in-out;
+}
+.inactive:hover {
+    color: black;
 }
 .celsius-fahrenheit-span {
     opacity: 0.6;
@@ -60,10 +86,21 @@ a:hover {
 .forecast-day {
     opacity: 0.6;
 }
+#current-date-time {
+    font-size: 1.5rem;
+}
 #forcast-row {
     text-align: center;
     margin-top: 10px;
 }
 #description {
     text-transform: capitalize;
+}
+#navigate-icon:hover {
+    cursor: pointer;
+    color: #000000;
+}
+#navigate-icon {
+    color: #a1acbd;
+    transition: all 250ms ease-in-out;
 }

@@ -27,7 +27,7 @@ const elementIds = {
     fahrenheit: "fahrenheit",
     celsius: "celsius",
     dateTime: "current-date-time",
-    currentLocation: "current-location-button",
+    currentLocation: "navigate-icon",
     weatherIcon: "weather-icon",
     forecastRow: "forcast-row",
 };

@@ -1,5 +1,7 @@
 body {
     margin-top: 2em;
+    background-color: #d3d3d3ce;
+    font-family: "Red Hat Display", sans-serif;
 }
 p {
     display: inline;
@@ -8,14 +10,18 @@ p {
 a:hover {
     text-decoration: none;
 }
+.page-title {
+    color: #2e9dee;
+    font-weight: 800;
+}
 .search-button {
     margin: 0 auto;
-    padding: 7px 10px;
-    border: 1px solid white;
-    background-color: white;
-    color: black;
-    border-radius: 10px;
-    box-shadow: 3px 3px 5px grey;
+    padding: 5px 8px;
+    border: 1px solid #2e9dee;
+    background-color: #2e9dee;
+    color: white;
+    border-radius: 5px;
+    box-shadow: 2px 2px 8px 1px grey;
     cursor: pointer;
     transition: all 200ms ease-in-out;
 }
@@ -60,10 +66,17 @@ a:hover {
 .forecast-day {
     opacity: 0.6;
 }
+#current-date-time {
+    font-size: 1.5rem;
+}
 #forcast-row {
     text-align: center;
     margin-top: 10px;
 }
 #description {
     text-transform: capitalize;
+}
+#navigate-icon:hover {
+    cursor: pointer;
+    color: #000000;
 }

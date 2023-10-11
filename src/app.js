@@ -29,7 +29,7 @@ const elementIds = {
     dateTime: "current-date-time",
     currentLocation: "navigate-icon",
     weatherIcon: "weather-icon",
-    forecastRow: "forcast-row",
+    forecastRow: "forecast-row",
 };
 
 /**
@@ -68,13 +68,13 @@ function formatDays(dateObj, daysArr, numberOfDays) {
 // ------------------------------
 
 /**
- * Handles the error when geolocation fails. Defaults to weather data for Albuquerque and hides the current location button.
+ * Handles the error when geolocation fails. Defaults to weather data for Albuquerque.
  * @param {PositionError} error - The geolocation error object.
  */
 function handleGeoLocationError(error) {
     console.error("Geolocation failed:", error);
     getCurrentTempCity("Albuquerque", "metric");
-    let locationButton = document.getElementById(elementIds["currentLocation"]);
+    getForecastCity("Albuquerque", "metric");
     locationButton.style.display = "none";
 }
 /**
@@ -176,6 +176,16 @@ function getForecastByCoordinates(lat, long) {
     fetchAndUpdateForecast(apiUrl);
 }
 /**
+ * Fetches the forecast data based on a city name and temperature unit and updates the UI.
+ * Calls `fetchAndUpdateForecast` with the constructed API URL.
+ * @param {string} city - The name of the city.
+ * @param {string} unit - The temperature unit ('metric' or 'imperial').
+ */
+async function getForecastCity(city, unit) {
+    const apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}&units=${unit}`;
+    fetchAndUpdateForecast(apiUrl);
+}
+/**
  * Formats the forecast object to include relevant weather details for future days.
  * @param {Object} responseObj - The response object from the API containing forecast data.
  */
@@ -213,7 +223,7 @@ function updateForecastUI(arrayOfForecastObj) {
     arrayOfForecastObj.forEach((forecastObj) => {
         forecastHtml += `
         <div class="col-lg-2 col-md-4 col-sm-6 col-12 p-0">
-            <div class="card m-2" style="background-image: linear-gradient(to bottom, #2e9dee, #5ea0e2, #7aa4d6, #8fa8c9, #a1acbd); border:none; border-radius: 20px;">
+            <div class="card m-2 custom-cards">
             <div class="card-body p-3">
                 <h5 class="forecast-day">${forecastObj.day}</h5>
                 <img src="${forecastObj.icon}" title="${forecastObj.condition}" alt="${forecastObj.condition}" class="forecast-icons" />
@@ -253,7 +263,7 @@ function updateWeatherDetails(
 }
 /**
  * Updates a specific weather detail in the UI.
- * @param {string} idName - The HTML element ID to target for updating.
+ * @param {string} key - The HTML element ID to target for updating.
  * @param {(string|number)} newValue - The new value to set for the targeted HTML element. Can be a temperature, description, etc.
  */
 function updateWeatherDetailsUI(key, newValue) {
@@ -273,7 +283,7 @@ function updateWeatherIcon(icon, description) {
 /**
  * Updates the class for active and inactive units.
  * @param {HTMLElement} toActiveElement - The element to set as active.
- * @param {HTMLElement[]} toInactiveElement - The element to set as inactive.
+ * @param {HTMLElement} toInactiveElement - The element to set as inactive.
  */
 function updateUnitClass(toActiveElement, toInactiveElement) {
     toActiveElement.classList.add("active");
@@ -292,8 +302,8 @@ function updateUnitClass(toActiveElement, toInactiveElement) {
  *
  * @param {Event} event - The DOM event triggered.
  * @param {string} unit - The unit of measurement ("metric" or "imperial").
- * @param {HTMLElement} activeSpan - The span element to be activated (will receive a special CSS class).
- * @param {HTMLElement} inactiveSpan - The span element to be deactivated (will lose the special CSS class).
+ * @param {HTMLElement} activeSpan - The DOM element to be activated (will receive a special CSS class).
+ * @param {HTMLElement} inactiveSpan - The DOM element to be deactivated (will lose the special CSS class).
  * @param {string} location - The location for which to get the current temperature.
  */
 function handleClicksSubmit(event, unit, activeSpan, inactiveSpan, location) {
@@ -301,6 +311,7 @@ function handleClicksSubmit(event, unit, activeSpan, inactiveSpan, location) {
     let unitSpan = document.getElementById(elementIds["windUnit"]);
     unitSpan.innerHTML = unit === "metric" ? "m/s" : "mph";
     getCurrentTempCity(location, unit);
+    getForecastCity(location, unit);
     updateUnitClass(activeSpan, inactiveSpan);
 }
 

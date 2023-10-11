@@ -30,77 +30,100 @@
                             <i
                                 id="navigate-icon"
                                 class="fa-solid fa-location-dot fa-bounce"
-                                style="color: #000000"
                             ></i>
                         </h1>
                     </div>
                     <div class="col-6"></div>
-                    <div class="col-2" id="current-date-time">13:14</div>
+                    <div class="col-2 text-right" id="current-date-time">
+                        13:14
+                    </div>
                 </div>
             </header>
 
             <main>
-                <section>
-                    <div class="row d-flex justify-content-center">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <form class="search-form">
-                                    <div class="row">
-                                        <div class="col-8">
-                                            <input
-                                                id="search-location-input"
-                                                class="form-control"
-                                                type="text"
-                                                placeholder="Search for a different location"
-                                                style="
-                                                    box-shadow: 3px 3px 8px grey;
-                                                "
-                                            />
+                <div class="styled-section-one">
+                    <section>
+                        <div
+                            class="row d-flex justify-content-center mt-5 mb-4"
+                        >
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <form class="search-form">
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <input
+                                                    id="search-location-input"
+                                                    class="form-control"
+                                                    type="text"
+                                                    placeholder="Search for a different location"
+                                                    style="
+                                                        box-shadow: 3px 3px 8px
+                                                            grey;
+                                                    "
+                                                />
+                                            </div>
+                                            <div class="col-4">
+                                                <input
+                                                    type="submit"
+                                                    value="Search"
+                                                    class="search-button"
+                                                />
+                                            </div>
                                         </div>
-                                        <div class="col-4">
-                                            <input
-                                                type="submit"
-                                                value="Search"
-                                                class="search-button"
-                                            />
-                                        </div>
-                                    </div>
-                                </form>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col h3"></div>
-                        <div class="col">
-                            <h2>
-                                <img src="" alt="" id="weather-icon" />
-                                <span id="temperature-value"></span>
-                                <span class="celsius-fahrenheit-span"
-                                    ><a id="celsius" class="active" href="#"
-                                        >°C</a
+                    </section>
+                    <section class="styled-section-two">
+                        <div class="row">
+                            <div class="col h3"></div>
+                            <div class="col-1"><p id="description"></p></div>
+                            <div class="col">
+                                <h2>
+                                    <img src="" alt="" id="weather-icon" />
+                                    <span id="temperature-value"></span>
+                                    <span class="celsius-fahrenheit-span"
+                                        ><a id="celsius" class="active" href="#"
+                                            >°C</a
+                                        >
+                                        <span class="cel-fah-pike">|</span>
+                                        <a
+                                            id="fahrenheit"
+                                            class="inactive"
+                                            href="#"
+                                            >°F</a
+                                        ></span
                                     >
-                                    <span class="cel-fah-pike">|</span>
-                                    <a id="fahrenheit" class="inactive" href="#"
-                                        >°F</a
-                                    ></span
-                                >
-                            </h2>
+                                </h2>
+                            </div>
+                            <div id="location-div" class="col h3"></div>
                         </div>
-                        <div id="location-div" class="col h3"></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3"></div>
-                        <div class="col-6">
-                            <p id="description"></p>
-                            <p>Humidity: <span id="humidity"></span>%</p>
-                            <p>
-                                Wind: <span id="wind-speed"></span
-                                ><span id="wind-speed-unit">m/s</span>
-                            </p>
+                    </section>
+                    <section>
+                        <div class="row mt-4 mb-2 text-center">
+                            <div class="col">
+                                <i
+                                    class="fa-solid fa-droplet"
+                                    style="color: #000000"
+                                ></i>
+                                <h4>Humidity:</h4>
+                                <h4><span id="humidity"></span>%</h4>
+                            </div>
+                            <div class="col">
+                                <i
+                                    class="fa-solid fa-wind"
+                                    style="color: #000000"
+                                ></i>
+                                <h4>Wind:</h4>
+                                <h4>
+                                    <span id="wind-speed"></span
+                                    ><span id="wind-speed-unit">m/s</span>
+                                </h4>
+                            </div>
                         </div>
-                        <div class="col-3"></div>
-                    </div>
-                </section>
+                    </section>
+                </div>
                 <section>
                     <div class="row" id="forcast-row"></div>
                 </section>

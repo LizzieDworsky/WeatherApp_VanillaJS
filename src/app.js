@@ -78,7 +78,7 @@ function handleGeoLocationError(error) {
     locationButton.style.display = "none";
 }
 /**
- * Fetches the current geolocation and initiates a request to get the current weather data.
+ * Fetches the current geolocation and initiates a request to get the current weather data and forecast.
  * @param {Object} position - The geolocation position object.
  * @param {Object} position.coords - The coordinates object.
  * @param {number} position.coords.latitude - The latitude. Passed into `getCurrentTempByCoordinates`.
@@ -87,6 +87,7 @@ function handleGeoLocationError(error) {
 function findGeoLocationInitialTemp(position) {
     let currentLocation = [position.coords.latitude, position.coords.longitude];
     getCurrentTempByCoordinates(currentLocation[0], currentLocation[1]);
+    getForecastByCoordinates(currentLocation[0], currentLocation[1]);
 }
 /**
  * Handles the click event for fetching current location and initiates a request to get the current weather data based on the geolocation.
@@ -108,7 +109,7 @@ function handleCurrentLocationClick() {
  * @param {string} apiUrl - The API URL to fetch data from.
  * @throws {Error} Throws an error if the API call fails.
  */
-async function fetchAndUpdateWeather(apiUrl) {
+async function fetchAndUpdateCurrentWeather(apiUrl) {
     try {
         const response = await axios.get(apiUrl);
         uiWeatherDetails(
@@ -134,7 +135,7 @@ async function fetchAndUpdateWeather(apiUrl) {
  */
 async function getCurrentTempByCoordinates(lat, long) {
     const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=${apiKeyOne}`;
-    fetchAndUpdateWeather(apiUrl);
+    fetchAndUpdateCurrentWeather(apiUrl);
 }
 /**
  * Fetches the current temperature data based on a city name and temperature unit and updates the UI.
@@ -144,7 +145,7 @@ async function getCurrentTempByCoordinates(lat, long) {
  */
 async function getCurrentTempCity(city, unit) {
     const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKeyOne}&units=${unit}`;
-    fetchAndUpdateWeather(apiUrl);
+    fetchAndUpdateCurrentWeather(apiUrl);
 }
 
 // ------------------------------
@@ -153,20 +154,29 @@ async function getCurrentTempCity(city, unit) {
 // Incomplete Code - Limit API Calls while working on other parts of the code
 // TODO: Add current location information and use forecast object to update html elements
 
-// /**
-//  * Fetch upcoming weather data from API
-//  * @returns {Promise<Object>} - A promise that resolves to the forecast data from the API
-//  */
-// async function getWeatherData() {
-//     const response = await axios.get(
-//         `http://api.weatherapi.com/v1/forecast.json?key=${apiKeyTwo}&q=48.8567,2.3508&days=6&aqi=no&alerts=no`
-//     );
-//     return response.data;
-// }
-
-// // Fetch and log forecasted weather
-// let forecastObj = await getWeatherData();
-// console.log(forecastObj);
+/**
+ * Generic function to fetch the forecast data from API and update the UI.
+ * @param {string} apiUrl - The API URL to fetch data from.
+ * @throws {Error} Throws an error if the API call fails and logs it to the console.
+ */
+async function fetchAndUpdateForecast(apiUrl) {
+    try {
+        const response = await axios.get(apiUrl);
+        console.log(response.data);
+    } catch (error) {
+        console.error("Failed to fetch data:", error);
+    }
+}
+/**
+ * Fetches the 7-day weather forecast based on latitude and longitude.
+ * Calls `fetchAndUpdateForecast` with the constructed API URL.
+ * @param {number} lat - The latitude.
+ * @param {number} long - The longitude.
+ */
+function getForecastByCoordinates(lat, long) {
+    let apiUrl = `http://api.weatherapi.com/v1/forecast.json?key=${apiKeyTwo}&q=${lat},${long}&days=7&aqi=no&alerts=no`;
+    fetchAndUpdateForecast(apiUrl);
+}
 
 let futureDays = formatFutureDays(now, daysArr, 6);
 let arrayOfForecastObj = [

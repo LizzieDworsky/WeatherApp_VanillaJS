@@ -91,9 +91,9 @@ function formatTodayDate(dateObj, daysArr) {
  * @param {number} numberOfDays - Number of future days to get
  * @returns {string[]} - Array of future days
  */
-function formatFutureDays(dateObj, daysArr, numberOfDays) {
+function formatDays(dateObj, daysArr, numberOfDays) {
     let futureDays = [];
-    for (let i = 1; i <= numberOfDays; i++) {
+    for (let i = 0; i < numberOfDays; i++) {
         let daysIndex = (dateObj.getDay() + i) % 7;
         futureDays.push(daysArr[daysIndex]);
     }
@@ -199,6 +199,7 @@ async function getCurrentTempCity(city, unit) {
 async function fetchAndUpdateForecast(apiUrl) {
     try {
         const response = await axios.get(apiUrl);
+        console.log(response.data.daily);
         formatForecastObject(response.data);
     } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -211,32 +212,25 @@ async function fetchAndUpdateForecast(apiUrl) {
  * @param {number} long - The longitude.
  */
 function getForecastByCoordinates(lat, long) {
-    let apiUrl = `http://api.weatherapi.com/v1/forecast.json?key=${apiKeyTwo}&q=${lat},${long}&days=7&aqi=no&alerts=no`;
+    let apiUrl = `https://api.shecodes.io/weather/v1/forecast?lat=${lat}&lon=${long}&key=${apiKeyTwo}&units=metric`;
     fetchAndUpdateForecast(apiUrl);
 }
 
 function formatForecastObject(responseObj) {
-    let futureDays = formatFutureDays(now, daysArr, 6);
+    let futureDays = formatDays(now, daysArr, responseObj.daily.length);
     let arrayOfForecastObj = Array(futureDays.length)
         .fill(null)
         .map(() => ({ day: "" }));
 
     for (let i = 0; i < futureDays.length; i++) {
         arrayOfForecastObj[i].day = futureDays[i];
-        arrayOfForecastObj[i].celMaxTemp = Math.round(
-            responseObj.forecast.forecastday[i + 1].day.maxtemp_c
+        arrayOfForecastObj[i].icon = responseObj.daily[i].condition.icon_url;
+        arrayOfForecastObj[i].maxTemp = Math.round(
+            responseObj.daily[i].temperature.maximum
         );
-        arrayOfForecastObj[i].fahMaxTemp = Math.round(
-            responseObj.forecast.forecastday[i + 1].day.maxtemp_f
+        arrayOfForecastObj[i].minTemp = Math.round(
+            responseObj.daily[i].temperature.minimum
         );
-        arrayOfForecastObj[i].celMinTemp = Math.round(
-            responseObj.forecast.forecastday[i + 1].day.mintemp_c
-        );
-        arrayOfForecastObj[i].fahMinTemp = Math.round(
-            responseObj.forecast.forecastday[i + 1].day.mintemp_f
-        );
-        arrayOfForecastObj[i].icon =
-            responseObj.forecast.forecastday[0].day.condition.icon;
     }
     updateForecastUI(arrayOfForecastObj);
 }
@@ -246,14 +240,14 @@ function updateForecastUI(arrayOfForecastObj) {
     arrayOfForecastObj.forEach((forecastObj) => {
         forecastHtml += `<div class="card m-3">
     <div class="card-body">
-        <h5 class="forecast-day">${forecastObj["day"]}</h5>
-        <img src="http:${forecastObj.icon}" alt="" class="forecast-icons" />
-        <h5>
-            <span class="forecast-temp max">${forecastObj.celMaxTemp}°</span>
-            <span class="forecast-temp pike">|</span>
-            <span class="forecast-temp min">${forecastObj.celMinTemp}°</span>
-        </h5>
-        </div>
+    <h5 class="forecast-day">${forecastObj.day}</h5>
+    <img src="${forecastObj.icon}" alt="" class="forecast-icons" />
+    <h5>
+    <span class="forecast-temp max">${forecastObj.maxTemp}°</span>
+    <span class="forecast-temp pike">|</span>
+    <span class="forecast-temp min">${forecastObj.minTemp}°</span>
+    </h5>
+    </div>
     </div>
     `;
     });

@@ -149,16 +149,16 @@ function handleCurrentLocationClick() {
 async function fetchAndUpdateCurrentWeather(apiUrl) {
     try {
         const response = await axios.get(apiUrl);
-        uiWeatherDetails(
-            response.data.main.temp,
-            response.data.weather[0].description,
-            response.data.main.humidity,
+        updateWeatherDetails(
+            response.data.temperature.current,
+            response.data.condition.description,
+            response.data.temperature.humidity,
             response.data.wind.speed,
-            `${response.data.name}, ${response.data.sys.country}`
+            `${response.data.city}, ${response.data.country}`
         );
         updateWeatherIcon(
-            response.data.weather[0].icon,
-            response.data.weather[0].description
+            response.data.condition.icon_url,
+            response.data.condition.description
         );
     } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -171,7 +171,7 @@ async function fetchAndUpdateCurrentWeather(apiUrl) {
  * @param {number} long - Longitude
  */
 async function getCurrentTempByCoordinates(lat, long) {
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=${apiKeyOne}`;
+    const apiUrl = `https://api.shecodes.io/weather/v1/current?lat=${lat}&lon=${long}&key=${apiKey}&units=metric`;
     fetchAndUpdateCurrentWeather(apiUrl);
 }
 /**
@@ -181,15 +181,13 @@ async function getCurrentTempByCoordinates(lat, long) {
  * @param {string} unit - The temperature unit ('metric' or 'imperial').
  */
 async function getCurrentTempCity(city, unit) {
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKeyOne}&units=${unit}`;
+    const apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}&units=${unit}`;
     fetchAndUpdateCurrentWeather(apiUrl);
 }
 
 // ------------------------------
 // SECTION: Upcoming Weather Handling
 // ------------------------------
-// Incomplete Code - Limit API Calls while working on other parts of the code
-// TODO: Add current location information and use forecast object to update html elements
 
 /**
  * Generic function to fetch the forecast data from API and update the UI.
@@ -199,7 +197,6 @@ async function getCurrentTempCity(city, unit) {
 async function fetchAndUpdateForecast(apiUrl) {
     try {
         const response = await axios.get(apiUrl);
-        console.log(response.data.daily);
         formatForecastObject(response.data);
     } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -212,10 +209,13 @@ async function fetchAndUpdateForecast(apiUrl) {
  * @param {number} long - The longitude.
  */
 function getForecastByCoordinates(lat, long) {
-    let apiUrl = `https://api.shecodes.io/weather/v1/forecast?lat=${lat}&lon=${long}&key=${apiKeyTwo}&units=metric`;
+    let apiUrl = `https://api.shecodes.io/weather/v1/forecast?lat=${lat}&lon=${long}&key=${apiKey}&units=metric`;
     fetchAndUpdateForecast(apiUrl);
 }
-
+/**
+ * Formats the forecast object to include relevant weather details for future days.
+ * @param {Object} responseObj - The response object from the API containing forecast data.
+ */
 function formatForecastObject(responseObj) {
     let futureDays = formatDays(now, daysArr, responseObj.daily.length);
     let arrayOfForecastObj = Array(futureDays.length)
@@ -225,6 +225,8 @@ function formatForecastObject(responseObj) {
     for (let i = 0; i < futureDays.length; i++) {
         arrayOfForecastObj[i].day = futureDays[i];
         arrayOfForecastObj[i].icon = responseObj.daily[i].condition.icon_url;
+        arrayOfForecastObj[i].condition =
+            responseObj.daily[i].condition.description;
         arrayOfForecastObj[i].maxTemp = Math.round(
             responseObj.daily[i].temperature.maximum
         );
@@ -235,13 +237,21 @@ function formatForecastObject(responseObj) {
     updateForecastUI(arrayOfForecastObj);
 }
 
+// ------------------------------
+// SECTION: UI Updating Functions
+// ------------------------------
+
+/**
+ * Updates the UI to display the weather forecast.
+ * @param {Object[]} arrayOfForecastObj - An array of forecast objects containing weather details for future days.
+ */
 function updateForecastUI(arrayOfForecastObj) {
     let forecastHtml = "";
     arrayOfForecastObj.forEach((forecastObj) => {
         forecastHtml += `<div class="card m-3">
     <div class="card-body">
     <h5 class="forecast-day">${forecastObj.day}</h5>
-    <img src="${forecastObj.icon}" alt="" class="forecast-icons" />
+    <img src="${forecastObj.icon}" title="${forecastObj.condition}" alt="${forecastObj.condition}" class="forecast-icons" />
     <h5>
     <span class="forecast-temp max">${forecastObj.maxTemp}°</span>
     <span class="forecast-temp pike">|</span>
@@ -254,11 +264,6 @@ function updateForecastUI(arrayOfForecastObj) {
     let forcastRow = document.getElementById(elementIds["forecastRow"]);
     forcastRow.innerHTML = forecastHtml;
 }
-
-// ------------------------------
-// SECTION: UI Updating Functions
-// ------------------------------
-
 /**
  * Updates the UI with weather details such as temperature, description, humidity, wind speed, and location.
  * @param {number} temp - The current temperature in the desired unit (e.g., Celsius, Fahrenheit).
@@ -267,19 +272,25 @@ function updateForecastUI(arrayOfForecastObj) {
  * @param {number} windSpeed - The current wind speed in the desired unit (e.g., mph, km/h).
  * @param {string} location - The current location (e.g., city name).
  */
-function uiWeatherDetails(temp, description, humidity, windSpeed, location) {
-    updateWeatherDetails("temperatureValue", Math.round(temp));
-    updateWeatherDetails("description", description);
-    updateWeatherDetails("humidity", humidity);
-    updateWeatherDetails("windSpeed", Math.round(windSpeed));
-    updateWeatherDetails("location", location);
+function updateWeatherDetails(
+    temp,
+    description,
+    humidity,
+    windSpeed,
+    location
+) {
+    updateWeatherDetailsUI("temperatureValue", Math.round(temp));
+    updateWeatherDetailsUI("description", description);
+    updateWeatherDetailsUI("humidity", humidity);
+    updateWeatherDetailsUI("windSpeed", Math.round(windSpeed));
+    updateWeatherDetailsUI("location", location);
 }
 /**
  * Updates a specific weather detail in the UI.
  * @param {string} idName - The HTML element ID to target for updating.
  * @param {(string|number)} newValue - The new value to set for the targeted HTML element. Can be a temperature, description, etc.
  */
-function updateWeatherDetails(key, newValue) {
+function updateWeatherDetailsUI(key, newValue) {
     let detailsElement = document.getElementById(elementIds[key]);
     detailsElement.innerHTML = newValue;
 }
@@ -290,10 +301,7 @@ function updateWeatherDetails(key, newValue) {
  */
 function updateWeatherIcon(icon, description) {
     let weatherIcon = document.getElementById(elementIds["weatherIcon"]);
-    weatherIcon.setAttribute(
-        "src",
-        `http://openweathermap.org/img/wn/${icon}@2x.png`
-    );
+    weatherIcon.setAttribute("src", icon);
     weatherIcon.setAttribute("alt", description);
 }
 /**

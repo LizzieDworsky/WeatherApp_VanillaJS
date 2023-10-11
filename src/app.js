@@ -162,7 +162,7 @@ async function getCurrentTempCity(city, unit) {
 async function fetchAndUpdateForecast(apiUrl) {
     try {
         const response = await axios.get(apiUrl);
-        console.log(response.data);
+        formatForecastObject(response.data);
     } catch (error) {
         console.error("Failed to fetch data:", error);
     }
@@ -178,38 +178,51 @@ function getForecastByCoordinates(lat, long) {
     fetchAndUpdateForecast(apiUrl);
 }
 
-let futureDays = formatFutureDays(now, daysArr, 6);
-let arrayOfForecastObj = [
-    { day: "Friday" },
-    { day: "Saturday" },
-    { day: "Sunday" },
-    { day: "Monday" },
-    { day: "Tuesday" },
-    { day: "Wednesday" },
-];
+function formatForecastObject(responseObj) {
+    let futureDays = formatFutureDays(now, daysArr, 6);
+    let arrayOfForecastObj = Array(futureDays.length)
+        .fill(null)
+        .map(() => ({ day: "" }));
 
-for (let i = 0; i < futureDays.length; i++) {
-    arrayOfForecastObj[i]["day"] = futureDays[i];
+    for (let i = 0; i < futureDays.length; i++) {
+        arrayOfForecastObj[i].day = futureDays[i];
+        arrayOfForecastObj[i].celMaxTemp = Math.round(
+            responseObj.forecast.forecastday[i + 1].day.maxtemp_c
+        );
+        arrayOfForecastObj[i].fahMaxTemp = Math.round(
+            responseObj.forecast.forecastday[i + 1].day.maxtemp_f
+        );
+        arrayOfForecastObj[i].celMinTemp = Math.round(
+            responseObj.forecast.forecastday[i + 1].day.mintemp_c
+        );
+        arrayOfForecastObj[i].fahMinTemp = Math.round(
+            responseObj.forecast.forecastday[i + 1].day.mintemp_f
+        );
+        arrayOfForecastObj[i].icon =
+            responseObj.forecast.forecastday[0].day.condition.icon;
+    }
+    updateForecastUI(arrayOfForecastObj);
 }
 
-let forecastHtml = "";
-arrayOfForecastObj.forEach((forecastObj) => {
-    forecastHtml += `<div class="card m-3">
+function updateForecastUI(arrayOfForecastObj) {
+    let forecastHtml = "";
+    arrayOfForecastObj.forEach((forecastObj) => {
+        forecastHtml += `<div class="card m-3">
     <div class="card-body">
         <h5 class="forecast-day">${forecastObj["day"]}</h5>
-        <img src="http://openweathermap.org/img/wn/04d@2x.png" alt="" class="forecast-icons" />
+        <img src="http:${forecastObj.icon}" alt="" class="forecast-icons" />
         <h5>
-            <span class="forecast-temp max">41°</span>
+            <span class="forecast-temp max">${forecastObj.celMaxTemp}°</span>
             <span class="forecast-temp pike">|</span>
-            <span class="forecast-temp min">28°</span>
+            <span class="forecast-temp min">${forecastObj.celMinTemp}°</span>
         </h5>
+        </div>
     </div>
-</div>
-`;
-});
-
-let forcastRow = document.getElementById(elementIds["forecastRow"]);
-forcastRow.innerHTML = forecastHtml;
+    `;
+    });
+    let forcastRow = document.getElementById(elementIds["forecastRow"]);
+    forcastRow.innerHTML = forecastHtml;
+}
 
 // ------------------------------
 // SECTION: UI Updating Functions

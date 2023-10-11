@@ -46,11 +46,7 @@ h4 {
     color: white;
 }
 .footer-watermark {
-    position: fixed;
-    width: 100%;
-    margin: 0;
     text-align: center;
-    bottom: 2em;
 }
 .h3 {
     font-size: 1.75rem;

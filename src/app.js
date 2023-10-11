@@ -1,20 +1,4 @@
-/**
- * Asynchronously fetches the API key from a secure Netlify function.
- *
- * @async
- * @returns {Promise<string|null>} A promise that resolves to the API key if successful, or null if an error occurs.
- * @throws Will print an error message to the console if an error occurs.
- */
-async function fetchApiKey() {
-    try {
-        const response = await axios.get("/.netlify/functions/fetchApiKey");
-        return response.data.key;
-    } catch (error) {
-        console.error("An error occurred while fetching the API key:", error);
-        return null;
-    }
-}
-const apiKey = await fetchApiKey();
+import { apiKey } from "../apiKeys.js";
 
 // ------------------------------
 // SECTION: Time and Days Handling
@@ -196,7 +180,7 @@ function getForecastByCoordinates(lat, long) {
  * @param {Object} responseObj - The response object from the API containing forecast data.
  */
 function formatForecastObject(responseObj) {
-    let futureDays = formatDays(now, daysArr, responseObj.daily.length);
+    let futureDays = formatDays(now, daysArr, 6);
     let arrayOfForecastObj = Array(futureDays.length)
         .fill(null)
         .map(() => ({ day: "" }));
@@ -227,17 +211,20 @@ function formatForecastObject(responseObj) {
 function updateForecastUI(arrayOfForecastObj) {
     let forecastHtml = "";
     arrayOfForecastObj.forEach((forecastObj) => {
-        forecastHtml += `<div class="card m-3">
-    <div class="card-body">
-    <h5 class="forecast-day">${forecastObj.day}</h5>
-    <img src="${forecastObj.icon}" title="${forecastObj.condition}" alt="${forecastObj.condition}" class="forecast-icons" />
-    <h5>
-    <span class="forecast-temp max">${forecastObj.maxTemp}°</span>
-    <span class="forecast-temp pike">|</span>
-    <span class="forecast-temp min">${forecastObj.minTemp}°</span>
-    </h5>
-    </div>
-    </div>
+        forecastHtml += `
+        <div class="col-lg-2 col-md-4 col-sm-6 col-12 p-0">
+            <div class="card m-2" style="background-image: linear-gradient(to bottom, #2e9dee, #5ea0e2, #7aa4d6, #8fa8c9, #a1acbd); border:none; border-radius: 20px;">
+            <div class="card-body p-3">
+                <h5 class="forecast-day">${forecastObj.day}</h5>
+                <img src="${forecastObj.icon}" title="${forecastObj.condition}" alt="${forecastObj.condition}" class="forecast-icons" />
+                <h5>
+                <span class="forecast-temp max">${forecastObj.maxTemp}°</span>
+                <span class="forecast-temp pike">|</span>
+                <span class="forecast-temp min">${forecastObj.minTemp}°</span>
+                </h5>
+            </div>
+            </div>
+        </div>
     `;
     });
     let forcastRow = document.getElementById(elementIds["forecastRow"]);

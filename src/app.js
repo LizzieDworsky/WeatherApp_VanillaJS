@@ -96,7 +96,7 @@ function handleGeoLocationError(error) {
     locationButton.style.display = "none";
 }
 /**
- * Fetches the current geolocation and initiates a request to get the current weather data.
+ * Fetches the current geolocation and initiates a request to get the current weather data and forecast.
  * @param {Object} position - The geolocation position object.
  * @param {Object} position.coords - The coordinates object.
  * @param {number} position.coords.latitude - The latitude. Passed into `getCurrentTempByCoordinates`.
@@ -105,6 +105,7 @@ function handleGeoLocationError(error) {
 function findGeoLocationInitialTemp(position) {
     let currentLocation = [position.coords.latitude, position.coords.longitude];
     getCurrentTempByCoordinates(currentLocation[0], currentLocation[1]);
+    getForecastByCoordinates(currentLocation[0], currentLocation[1]);
 }
 /**
  * Handles the click event for fetching current location and initiates a request to get the current weather data based on the geolocation.
@@ -126,7 +127,7 @@ function handleCurrentLocationClick() {
  * @param {string} apiUrl - The API URL to fetch data from.
  * @throws {Error} Throws an error if the API call fails.
  */
-async function fetchAndUpdateWeather(apiUrl) {
+async function fetchAndUpdateCurrentWeather(apiUrl) {
     try {
         const response = await axios.get(apiUrl);
         uiWeatherDetails(
@@ -152,7 +153,7 @@ async function fetchAndUpdateWeather(apiUrl) {
  */
 async function getCurrentTempByCoordinates(lat, long) {
     const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=${apiKeyOne}`;
-    fetchAndUpdateWeather(apiUrl);
+    fetchAndUpdateCurrentWeather(apiUrl);
 }
 /**
  * Fetches the current temperature data based on a city name and temperature unit and updates the UI.
@@ -162,7 +163,7 @@ async function getCurrentTempByCoordinates(lat, long) {
  */
 async function getCurrentTempCity(city, unit) {
     const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKeyOne}&units=${unit}`;
-    fetchAndUpdateWeather(apiUrl);
+    fetchAndUpdateCurrentWeather(apiUrl);
 }
 
 // ------------------------------
@@ -171,62 +172,80 @@ async function getCurrentTempCity(city, unit) {
 // Incomplete Code - Limit API Calls while working on other parts of the code
 // TODO: Add current location information and use forecast object to update html elements
 
-// /**
-//  * Fetch upcoming weather data from API
-//  * @returns {Promise<Object>} - A promise that resolves to the forecast data from the API
-//  */
-// async function getWeatherData() {
-//     const response = await axios.get(
-//         `http://api.weatherapi.com/v1/forecast.json?key=${apiKeyTwo}&q=48.8567,2.3508&days=6&aqi=no&alerts=no`
-//     );
-//     return response.data;
-// }
-
-// // Fetch and log forecasted weather
-// let forecastObj = await getWeatherData();
-// console.log(forecastObj);
-
-let forecastHtml = "";
-for (let i = 0; i < 5; i++) {
-    forecastHtml += `<div class="card col m-4">
-    <div class="card-body">
-        <h5 class="forecast-day">Friday</h5>
-        <img src="http://openweathermap.org/img/wn/04d@2x.png" alt="" class="forecast-icons" />
-        <h5>
-            <span class="forecast-temp max">41°</span>
-            <span class="forecast-temp pike">|</span>
-            <span class="forecast-temp min">28°</span>
-        </h5>
-    </div>
-</div>
-`;
+/**
+ * Generic function to fetch the forecast data from API and update the UI.
+ * @param {string} apiUrl - The API URL to fetch data from.
+ * @throws {Error} Throws an error if the API call fails and logs it to the console.
+ */
+async function fetchAndUpdateForecast(apiUrl) {
+    try {
+        const response = await axios.get(apiUrl);
+        formatForecastObject(response.data);
+    } catch (error) {
+        console.error("Failed to fetch data:", error);
+    }
 }
-let forcastRow = document.getElementById(elementIds["forecastRow"]);
-forcastRow.innerHTML = forecastHtml;
+/**
+ * Fetches the 7-day weather forecast based on latitude and longitude.
+ * Calls `fetchAndUpdateForecast` with the constructed API URL.
+ * @param {number} lat - The latitude.
+ * @param {number} long - The longitude.
+ */
+function getForecastByCoordinates(lat, long) {
+    let apiUrl = `http://api.weatherapi.com/v1/forecast.json?key=${apiKeyTwo}&q=${lat},${long}&days=7&aqi=no&alerts=no`;
+    fetchAndUpdateForecast(apiUrl);
+}
+
+function formatForecastObject(responseObj) {
+    let futureDays = formatFutureDays(now, daysArr, 6);
+    let arrayOfForecastObj = Array(futureDays.length)
+        .fill(null)
+        .map(() => ({ day: "" }));
+
+    for (let i = 0; i < futureDays.length; i++) {
+        arrayOfForecastObj[i].day = futureDays[i];
+        arrayOfForecastObj[i].celMaxTemp = Math.round(
+            responseObj.forecast.forecastday[i + 1].day.maxtemp_c
+        );
+        arrayOfForecastObj[i].fahMaxTemp = Math.round(
+            responseObj.forecast.forecastday[i + 1].day.maxtemp_f
+        );
+        arrayOfForecastObj[i].celMinTemp = Math.round(
+            responseObj.forecast.forecastday[i + 1].day.mintemp_c
+        );
+        arrayOfForecastObj[i].fahMinTemp = Math.round(
+            responseObj.forecast.forecastday[i + 1].day.mintemp_f
+        );
+        arrayOfForecastObj[i].icon =
+            responseObj.forecast.forecastday[0].day.condition.icon;
+    }
+    updateForecastUI(arrayOfForecastObj);
+}
+
+function updateForecastUI(arrayOfForecastObj) {
+    let forecastHtml = "";
+    arrayOfForecastObj.forEach((forecastObj) => {
+        forecastHtml += `<div class="card m-3">
+    <div class="card-body">
+        <h5 class="forecast-day">${forecastObj["day"]}</h5>
+        <img src="http:${forecastObj.icon}" alt="" class="forecast-icons" />
+        <h5>
+            <span class="forecast-temp max">${forecastObj.celMaxTemp}°</span>
+            <span class="forecast-temp pike">|</span>
+            <span class="forecast-temp min">${forecastObj.celMinTemp}°</span>
+        </h5>
+        </div>
+    </div>
+    `;
+    });
+    let forcastRow = document.getElementById(elementIds["forecastRow"]);
+    forcastRow.innerHTML = forecastHtml;
+}
 
 // ------------------------------
 // SECTION: UI Updating Functions
 // ------------------------------
 
-/**
- * Update UI elements to display upcoming days
- * @param {string[]} nextFiveDays - Array of next five days
- */
-function updateUIElementsDays(nextFiveDays) {
-    let daysElementSelectors = [
-        "#tomorrow-card h6",
-        "#day-three-card h6",
-        "#day-four-card h6",
-        "#day-five-card h6",
-        "#day-six-card h6",
-    ];
-    let todayDiv = document.getElementById(elementIds["dateTime"]);
-    todayDiv.innerHTML = formatTodayDate(now, daysArr);
-    for (let i = 0; i < 5; i++) {
-        let element = document.querySelector(daysElementSelectors[i]);
-        element.innerHTML = nextFiveDays[i];
-    }
-}
 /**
  * Updates the UI with weather details such as temperature, description, humidity, wind speed, and location.
  * @param {number} temp - The current temperature in the desired unit (e.g., Celsius, Fahrenheit).
@@ -346,7 +365,3 @@ form.addEventListener("submit", (event) => {
 // Add event listener for current location button
 let currentButton = document.getElementById(elementIds["currentLocation"]);
 currentButton.addEventListener("click", handleCurrentLocationClick);
-
-// Initialize UI elements
-// let nextFiveDays = formatFutureDays(now, daysArr, 5);
-// updateUIElementsDays(nextFiveDays);

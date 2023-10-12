@@ -6,7 +6,14 @@ import { apiKey } from "../apiKeys.js";
 
 // TODO: Update timezones
 // Initialize current date and days array
-const now = new Date();
+const localDate = new Date();
+const utcDate = Date.UTC(
+    localDate.getUTCFullYear(),
+    localDate.getUTCMonth(),
+    localDate.getUTCDate(),
+    localDate.getUTCHours(),
+    localDate.getUTCMinutes()
+);
 const daysArr = [
     "Sunday",
     "Monday",
@@ -27,6 +34,7 @@ const elementIds = {
     fahrenheit: "fahrenheit",
     celsius: "celsius",
     dateTime: "current-date-time",
+    timezoneTime: "timezone-time",
     currentLocation: "navigate-icon",
     weatherIcon: "weather-icon",
     forecastRow: "forecast-row",
@@ -45,7 +53,8 @@ function formatTodayDate(dateObj, daysArr) {
     if (minutes < 10) {
         minutes = `0${minutes}`;
     }
-    return `${day} ${hour}:${minutes}`;
+    let ampm = hour >= 12 ? "PM" : "AM";
+    return `${day} ${hour}:${minutes} ${ampm}`;
 }
 /**
  * Get future days based on the current day
@@ -62,6 +71,10 @@ function formatDays(dateObj, daysArr, numberOfDays) {
     }
     return futureDays;
 }
+
+let localDateTimeEle = document.getElementById(elementIds["dateTime"]);
+let localDateTime = formatTodayDate(localDate, daysArr);
+localDateTimeEle.innerHTML = localDateTime;
 
 // ------------------------------
 // SECTION: Geolocation and Temperature Unit Handling
@@ -190,7 +203,7 @@ async function getForecastCity(city, unit) {
  * @param {Object} responseObj - The response object from the API containing forecast data.
  */
 function formatForecastObject(responseObj) {
-    let futureDays = formatDays(now, daysArr, 6);
+    let futureDays = formatDays(localDate, daysArr, 6);
     let arrayOfForecastObj = Array(futureDays.length)
         .fill(null)
         .map(() => ({ day: "" }));

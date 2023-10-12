@@ -1,4 +1,4 @@
-import { apiKey } from "../apiKeys.js";
+import { apiKey, googleApiKey } from "../apiKeys.js";
 
 // ------------------------------
 // SECTION: Time and Days Handling
@@ -35,7 +35,6 @@ const elementIds = {
     weatherIcon: "weather-icon",
     forecastRow: "forecast-row",
 };
-
 /**
  * Format the current date and time based on local or UTC time.
  *
@@ -82,6 +81,22 @@ function formatDays(dateObj, daysArr, numberOfDays) {
     }
     return futureDays;
 }
+async function fetchTimeZoneData(lat, long, timeStamp) {
+    try {
+        const response = await axios.get(
+            `https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${long}&timestamp=${timeStamp}&key=${googleApiKey}`
+        );
+        console.log(response.data);
+        const isDST = response.dstOffset !== 0;
+        const timeZoneOffset =
+            (isDST ? response.data.dstOffset : response.data.rawOffset) * 1000;
+        console.log(timeZoneOffset);
+        // console.log(formatTodayDate(response.data));
+    } catch (error) {
+        console.error("Failed to fetch data:", error);
+    }
+}
+fetchTimeZoneData(38.7077507, -9.1365919, 1697120560);
 
 let localDateTimeEle = document.getElementById(elementIds["dateTime"]);
 let localDateTime = formatTodayDate(localDate, daysArr, false);

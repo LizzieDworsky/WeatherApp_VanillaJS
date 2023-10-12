@@ -344,8 +344,8 @@ function updateForecastUI(arrayOfForecastObj) {
         </div>
     `;
     });
-    let forcastRow = document.getElementById(elementIds["forecastRow"]);
-    forcastRow.innerHTML = forecastHtml;
+    let forecastRow = document.getElementById(elementIds["forecastRow"]);
+    forecastRow.innerHTML = forecastHtml;
 }
 /**
  * Updates the UI with weather details such as temperature, description, humidity, wind speed, and location.

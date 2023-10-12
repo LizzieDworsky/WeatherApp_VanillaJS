@@ -1,4 +1,20 @@
-import { weatherApiKey, googleApiKey } from "../apiKeys.js";
+/**
+ * Asynchronously fetches the API key from a secure Netlify function.
+ *
+ * @async
+ * @returns {Promise<string|null>} A promise that resolves to the API key if successful, or null if an error occurs.
+ * @throws Will print an error message to the console if an error occurs.
+ */
+async function fetchApiKey() {
+    try {
+        const response = await axios.get("/.netlify/functions/fetchApiKey");
+        return response.data.key;
+    } catch (error) {
+        console.error("An error occurred while fetching the API key:", error);
+        return null;
+    }
+}
+const apiKey = await fetchApiKey();
 
 // ------------------------------
 // SECTION: Time and Days Handling

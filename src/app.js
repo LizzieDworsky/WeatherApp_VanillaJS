@@ -7,13 +7,9 @@ import { apiKey } from "../apiKeys.js";
 // TODO: Update timezones
 // Initialize current date and days array
 const localDate = new Date();
-const utcDate = Date.UTC(
-    localDate.getUTCFullYear(),
-    localDate.getUTCMonth(),
-    localDate.getUTCDate(),
-    localDate.getUTCHours(),
-    localDate.getUTCMinutes()
-);
+const utcDate = localDate.getTime();
+const timeOffset = -28800 * 1000;
+const timeZoneDate = new Date(utcDate + timeOffset);
 const daysArr = [
     "Sunday",
     "Monday",
@@ -41,19 +37,34 @@ const elementIds = {
 };
 
 /**
- * Format the current date and time
- * @param {Date} dateObj - The date object
- * @param {string[]} daysArr - Array of days in a week
- * @returns {string} - Formatted string
+ * Format the current date and time based on local or UTC time.
+ *
+ * @param {Date} dateObj - The date object to format.
+ * @param {string[]} daysArr - Array of days in a week, used for formatting the day.
+ * @param {boolean} isUTC - Flag to indicate whether to use UTC time. If true, uses UTC time; otherwise, uses local time.
+ *
+ * @returns {string} - Formatted string representing the date and time, including AM/PM.
  */
-function formatTodayDate(dateObj, daysArr) {
-    let day = daysArr[dateObj.getDay()];
-    let hour = dateObj.getHours();
-    let minutes = dateObj.getMinutes();
+function formatTodayDate(dateObj, daysArr, isUTC) {
+    console.log(dateObj);
+    console.log(dateObj.getHours());
+    let day, hour, minutes;
+    if (isUTC) {
+        day = daysArr[dateObj.getUTCDay()];
+        hour = dateObj.getUTCHours();
+        minutes = dateObj.getUTCMinutes();
+    } else {
+        day = daysArr[dateObj.getDay()];
+        hour = dateObj.getHours();
+        minutes = dateObj.getMinutes();
+    }
+
     if (minutes < 10) {
         minutes = `0${minutes}`;
     }
     let ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12;
+    hour = hour ? hour : 12;
     return `${day} ${hour}:${minutes} ${ampm}`;
 }
 /**
@@ -73,8 +84,12 @@ function formatDays(dateObj, daysArr, numberOfDays) {
 }
 
 let localDateTimeEle = document.getElementById(elementIds["dateTime"]);
-let localDateTime = formatTodayDate(localDate, daysArr);
+let localDateTime = formatTodayDate(localDate, daysArr, false);
 localDateTimeEle.innerHTML = localDateTime;
+
+let timeZoneEle = document.getElementById(elementIds["timezoneTime"]);
+let timeZone = formatTodayDate(timeZoneDate, daysArr, true);
+timeZoneEle.innerHTML = timeZone;
 
 // ------------------------------
 // SECTION: Geolocation and Temperature Unit Handling

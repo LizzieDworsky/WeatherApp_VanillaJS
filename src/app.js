@@ -1,4 +1,4 @@
-import { apiKey, googleApiKey } from "../apiKeys.js";
+import { weatherApiKey, googleApiKey } from "../apiKeys.js";
 
 // ------------------------------
 // SECTION: Time and Days Handling
@@ -8,8 +8,6 @@ import { apiKey, googleApiKey } from "../apiKeys.js";
 // Initialize current date and days array
 const localDate = new Date();
 const utcDate = localDate.getTime();
-const timeOffset = -28800 * 1000;
-const timeZoneDate = new Date(utcDate + timeOffset);
 const daysArr = [
     "Sunday",
     "Monday",
@@ -45,8 +43,6 @@ const elementIds = {
  * @returns {string} - Formatted string representing the date and time, including AM/PM.
  */
 function formatTodayDate(dateObj, daysArr, isUTC) {
-    console.log(dateObj);
-    console.log(dateObj.getHours());
     let day, hour, minutes;
     if (isUTC) {
         day = daysArr[dateObj.getUTCDay()];
@@ -86,25 +82,19 @@ async function fetchTimeZoneData(lat, long, timeStamp) {
         const response = await axios.get(
             `https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${long}&timestamp=${timeStamp}&key=${googleApiKey}`
         );
-        console.log(response.data);
-        const isDST = response.dstOffset !== 0;
-        const timeZoneOffset =
-            (isDST ? response.data.dstOffset : response.data.rawOffset) * 1000;
-        console.log(timeZoneOffset);
-        // console.log(formatTodayDate(response.data));
+        formattimeZoneData(response.data);
     } catch (error) {
         console.error("Failed to fetch data:", error);
     }
 }
-fetchTimeZoneData(38.7077507, -9.1365919, 1697120560);
-
-let localDateTimeEle = document.getElementById(elementIds["dateTime"]);
-let localDateTime = formatTodayDate(localDate, daysArr, false);
-localDateTimeEle.innerHTML = localDateTime;
-
-let timeZoneEle = document.getElementById(elementIds["timezoneTime"]);
-let timeZone = formatTodayDate(timeZoneDate, daysArr, true);
-timeZoneEle.innerHTML = timeZone;
+function formattimeZoneData(responseObj) {
+    const isDST = responseObj.dstOffset !== 0;
+    const timeZoneOffset =
+        (isDST ? responseObj.dstOffset : responseObj.rawOffset) * 1000;
+    const timeZoneDate = new Date(utcDate + timeZoneOffset);
+    let timeZoneEle = document.getElementById(elementIds["timezoneTime"]);
+    timeZoneEle.innerHTML = formatTodayDate(timeZoneDate, daysArr, true);
+}
 
 // ------------------------------
 // SECTION: Geolocation and Temperature Unit Handling
@@ -177,7 +167,7 @@ async function fetchAndUpdateCurrentWeather(apiUrl) {
  * @param {number} long - Longitude
  */
 async function getCurrentTempByCoordinates(lat, long) {
-    const apiUrl = `https://api.shecodes.io/weather/v1/current?lat=${lat}&lon=${long}&key=${apiKey}&units=metric`;
+    const apiUrl = `https://api.shecodes.io/weather/v1/current?lat=${lat}&lon=${long}&key=${weatherApiKey}&units=metric`;
     fetchAndUpdateCurrentWeather(apiUrl);
 }
 /**
@@ -187,7 +177,7 @@ async function getCurrentTempByCoordinates(lat, long) {
  * @param {string} unit - The temperature unit ('metric' or 'imperial').
  */
 async function getCurrentTempCity(city, unit) {
-    const apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}&units=${unit}`;
+    const apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${weatherApiKey}&units=${unit}`;
     fetchAndUpdateCurrentWeather(apiUrl);
 }
 
@@ -215,7 +205,7 @@ async function fetchAndUpdateForecast(apiUrl) {
  * @param {number} long - The longitude.
  */
 function getForecastByCoordinates(lat, long) {
-    let apiUrl = `https://api.shecodes.io/weather/v1/forecast?lat=${lat}&lon=${long}&key=${apiKey}&units=metric`;
+    let apiUrl = `https://api.shecodes.io/weather/v1/forecast?lat=${lat}&lon=${long}&key=${weatherApiKey}&units=metric`;
     fetchAndUpdateForecast(apiUrl);
 }
 /**
@@ -225,7 +215,7 @@ function getForecastByCoordinates(lat, long) {
  * @param {string} unit - The temperature unit ('metric' or 'imperial').
  */
 async function getForecastCity(city, unit) {
-    const apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}&units=${unit}`;
+    const apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${weatherApiKey}&units=${unit}`;
     fetchAndUpdateForecast(apiUrl);
 }
 /**
@@ -334,6 +324,19 @@ function updateUnitClass(toActiveElement, toInactiveElement) {
     toInactiveElement.classList.add("inactive");
     toInactiveElement.classList.remove("active");
 }
+/**
+ * Updates the initial date and time information in the UI.
+ *
+ * This function fetches the current local date and time using the `formatTodayDate` function and updates
+ * the corresponding HTML elements for displaying the local date and time as well as the time zone.
+ */
+function updateDateTimeUI() {
+    let localDateTimeEle = document.getElementById(elementIds["dateTime"]);
+    let localDateTime = formatTodayDate(localDate, daysArr, false);
+    let timeZoneEle = document.getElementById(elementIds["timezoneTime"]);
+    localDateTimeEle.innerHTML = localDateTime;
+    timeZoneEle.innerHTML = localDateTime;
+}
 
 // ------------------------------
 // SECTION: Event Listeners and Initializations
@@ -357,6 +360,9 @@ function handleClicksSubmit(event, unit, activeSpan, inactiveSpan, location) {
     getForecastCity(location, unit);
     updateUnitClass(activeSpan, inactiveSpan);
 }
+
+// Initialize date and time display in UI
+updateDateTimeUI();
 
 // Initialize temperature with Celsius data
 navigator.geolocation.getCurrentPosition(

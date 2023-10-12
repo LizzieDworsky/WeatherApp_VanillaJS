@@ -10,8 +10,20 @@ p {
 a:hover {
     text-decoration: none;
 }
-h4 {
+.custom-h4 {
     margin: 20px;
+}
+.custom-cards {
+    background-image: linear-gradient(
+        to bottom,
+        #2e9dee,
+        #5ea0e2,
+        #7aa4d6,
+        #8fa8c9,
+        #a1acbd
+    );
+    border: none;
+    border-radius: 20px;
 }
 .styled-section-one {
     background-color: #a1acbd;
@@ -82,12 +94,24 @@ h4 {
 .forecast-day {
     opacity: 0.6;
 }
+.icon-black {
+    color: #000000;
+}
+.search-box-shadow {
+    box-shadow: 3px 3px 8px grey;
+}
+.location-div-style {
+    max-width: 300px;
+    margin: auto;
+}
+.weather-icon-transform {
+    transform: scale(1.5);
+}
+.temp-font-size {
+    font-size: 64px;
+}
 #current-date-time {
     font-size: 1.5rem;
-}
-#forcast-row {
-    text-align: center;
-    margin-top: 10px;
 }
 #description {
     text-transform: capitalize;

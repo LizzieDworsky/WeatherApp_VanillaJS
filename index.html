@@ -53,13 +53,9 @@
                                             <div class="col-8">
                                                 <input
                                                     id="search-location-input"
-                                                    class="form-control"
+                                                    class="form-control search-box-shadow"
                                                     type="text"
-                                                    placeholder="Search for a different location"
-                                                    style="
-                                                        box-shadow: 3px 3px 8px
-                                                            grey;
-                                                    "
+                                                    placeholder="Search by city"
                                                 />
                                             </div>
                                             <div class="col-4">
@@ -80,12 +76,10 @@
                             <div class="col">
                                 <h3
                                     id="location-div"
-                                    style="max-width: 300px; margin: auto"
-                                    class="mt-2"
+                                    class="mt-2 location-div-style"
                                 ></h3>
                                 <img
-                                    class="mt-4"
-                                    style="transform: scale(1.5)"
+                                    class="mt-4 weather-icon-transform"
                                     src=""
                                     alt=""
                                     id="weather-icon"
@@ -98,7 +92,7 @@
                                 <h3 class="mb-4">
                                     <span
                                         id="temperature-value"
-                                        style="font-size: 64px"
+                                        class="temp-font-size"
                                     ></span>
                                     <span class="celsius-fahrenheit-span"
                                         ><a id="celsius" class="active" href="#"
@@ -120,20 +114,16 @@
                     <section>
                         <div class="row mt-4 mb-2 text-center">
                             <div class="col">
-                                <i
-                                    class="fa-solid fa-droplet"
-                                    style="color: #000000"
-                                ></i>
-                                <h4>Humidity:</h4>
-                                <h4><span id="humidity"></span>%</h4>
+                                <i class="fa-solid fa-droplet icon-black"></i>
+                                <h4 class="custom-h4">Humidity:</h4>
+                                <h4 class="custom-h4">
+                                    <span id="humidity"></span>%
+                                </h4>
                             </div>
                             <div class="col">
-                                <i
-                                    class="fa-solid fa-wind"
-                                    style="color: #000000"
-                                ></i>
-                                <h4>Wind:</h4>
-                                <h4>
+                                <i class="fa-solid fa-wind icon-black"></i>
+                                <h4 class="custom-h4">Wind:</h4>
+                                <h4 class="custom-h4">
                                     <span id="wind-speed"></span
                                     ><span id="wind-speed-unit">m/s</span>
                                 </h4>
@@ -142,7 +132,7 @@
                     </section>
                 </div>
                 <section>
-                    <div class="row" id="forcast-row"></div>
+                    <div class="row text-center" id="forecast-row"></div>
                 </section>
             </main>
             <footer>

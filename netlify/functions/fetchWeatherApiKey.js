@@ -1,5 +1,5 @@
 exports.handler = async function (event, context) {
-    const API_KEY = process.env.apiKey; // Access the API key from environment variables
+    const API_KEY = process.env.weatherApiKey; // Access the API key from environment variables
 
     return {
         statusCode: 200,

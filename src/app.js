@@ -2,19 +2,40 @@
  * Asynchronously fetches the API key from a secure Netlify function.
  *
  * @async
- * @returns {Promise<string|null>} A promise that resolves to the API key if successful, or null if an error occurs.
+ * @returns {Promise<string|null>} A promise that resolves to the weather API key if successful, or null if an error occurs.
  * @throws Will print an error message to the console if an error occurs.
  */
-async function fetchApiKey() {
+async function fetchWeatherApiKey() {
     try {
-        const response = await axios.get("/.netlify/functions/fetchApiKey");
+        const response = await axios.get(
+            "/.netlify/functions/fetchWeatherApiKey"
+        );
         return response.data.key;
     } catch (error) {
         console.error("An error occurred while fetching the API key:", error);
         return null;
     }
 }
-const apiKey = await fetchApiKey();
+/**
+ * Asynchronously fetches the API key from a secure Netlify function.
+ *
+ * @async
+ * @returns {Promise<string|null>} A promise that resolves to the Google API key if successful, or null if an error occurs.
+ * @throws Will print an error message to the console if an error occurs.
+ */
+async function fetchGoogleApiKey() {
+    try {
+        const response = await axios.get(
+            "/.netlify/functions/fetchGoogleApiKey"
+        );
+        return response.data.key;
+    } catch (error) {
+        console.error("An error occurred while fetching the API key:", error);
+        return null;
+    }
+}
+const weatherApiKey = await fetchWeatherApiKey();
+const googleApiKey = await fetchGoogleApiKey();
 
 // ------------------------------
 // SECTION: Time and Days Handling

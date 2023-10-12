@@ -90,7 +90,9 @@ async function fetchTimeZoneData(lat, long, timeStamp) {
 function formattimeZoneData(responseObj) {
     const isDST = responseObj.dstOffset !== 0;
     const timeZoneOffset =
-        (isDST ? responseObj.dstOffset : responseObj.rawOffset) * 1000;
+        (isDST
+            ? responseObj.rawOffset + responseObj.dstOffset
+            : responseObj.rawOffset) * 1000;
     const timeZoneDate = new Date(utcDate + timeZoneOffset);
     let timeZoneEle = document.getElementById(elementIds["timezoneTime"]);
     timeZoneEle.innerHTML = formatTodayDate(timeZoneDate, daysArr, true);
@@ -142,7 +144,7 @@ function handleCurrentLocationClick() {
  * @param {string} apiUrl - The API URL to fetch data from.
  * @throws {Error} Throws an error if the API call fails.
  */
-async function fetchAndUpdateCurrentWeather(apiUrl) {
+async function fetchAndUpdateCurrentWeather(apiUrl, isNewCity) {
     try {
         const response = await axios.get(apiUrl);
         updateWeatherDetails(
@@ -156,6 +158,13 @@ async function fetchAndUpdateCurrentWeather(apiUrl) {
             response.data.condition.icon_url,
             response.data.condition.description
         );
+        if (isNewCity) {
+            fetchTimeZoneData(
+                response.data.coordinates.latitude,
+                response.data.coordinates.longitude,
+                response.data.time
+            );
+        }
     } catch (error) {
         console.error("Failed to fetch data:", error);
     }
@@ -176,9 +185,9 @@ async function getCurrentTempByCoordinates(lat, long) {
  * @param {string} city - The name of the city.
  * @param {string} unit - The temperature unit ('metric' or 'imperial').
  */
-async function getCurrentTempCity(city, unit) {
+async function getCurrentTempCity(city, unit, isNewCity) {
     const apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${weatherApiKey}&units=${unit}`;
-    fetchAndUpdateCurrentWeather(apiUrl);
+    fetchAndUpdateCurrentWeather(apiUrl, isNewCity);
 }
 
 // ------------------------------
@@ -352,11 +361,18 @@ function updateDateTimeUI() {
  * @param {HTMLElement} inactiveSpan - The DOM element to be deactivated (will lose the special CSS class).
  * @param {string} location - The location for which to get the current temperature.
  */
-function handleClicksSubmit(event, unit, activeSpan, inactiveSpan, location) {
+function handleClicksSubmit(
+    event,
+    unit,
+    activeSpan,
+    inactiveSpan,
+    location,
+    isNewCity = false
+) {
     event.preventDefault();
     let unitSpan = document.getElementById(elementIds["windUnit"]);
     unitSpan.innerHTML = unit === "metric" ? "m/s" : "mph";
-    getCurrentTempCity(location, unit);
+    getCurrentTempCity(location, unit, isNewCity);
     getForecastCity(location, unit);
     updateUnitClass(activeSpan, inactiveSpan);
 }
@@ -404,7 +420,8 @@ form.addEventListener("submit", (event) => {
         "metric",
         celsiusSpan,
         fahrenheitSpan,
-        searchInput.value
+        searchInput.value,
+        true
     );
     searchInput.value = "";
 });
@@ -414,4 +431,5 @@ let currentButton = document.getElementById(elementIds["currentLocation"]);
 currentButton.addEventListener("click", (event) => {
     handleCurrentLocationClick();
     updateUnitClass(celsiusSpan, fahrenheitSpan);
+    updateDateTimeUI();
 });

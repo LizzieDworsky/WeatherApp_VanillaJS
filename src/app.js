@@ -154,6 +154,11 @@ function handleCurrentLocationClick() {
 // SECTION: Current Weather Handling
 // ------------------------------
 
+function handleLocationError(inputEle) {
+    inputEle.placeholder = "Invalid location, please try again.";
+    inputEle.classList.add("location-error");
+}
+
 /**
  * Generic function to fetch current temperature data from API and update the UI.
  * @param {string} apiUrl - The API URL to fetch data from.
@@ -161,6 +166,7 @@ function handleCurrentLocationClick() {
  * @throws {Error} Throws an error if the API call fails.
  */
 async function fetchAndUpdateCurrentWeather(apiUrl, isNewCity = false) {
+    let inputEle = document.getElementById(elementIds["searchInput"]);
     try {
         const response = await axios.get(apiUrl);
         updateWeatherDetails(
@@ -181,8 +187,13 @@ async function fetchAndUpdateCurrentWeather(apiUrl, isNewCity = false) {
                 response.data.time
             );
         }
+        if (inputEle.classList.contains("location-error")) {
+            inputEle.classList.remove("location-error");
+            inputEle.placeholder = "Search by city";
+        }
     } catch (error) {
         console.error("Failed to fetch data:", error);
+        handleLocationError(inputEle);
     }
 }
 /**

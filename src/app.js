@@ -362,4 +362,7 @@ form.addEventListener("submit", (event) => {
 
 // Add event listener for current location button
 let currentButton = document.getElementById(elementIds["currentLocation"]);
-currentButton.addEventListener("click", handleCurrentLocationClick);
+currentButton.addEventListener("click", (event) => {
+    handleCurrentLocationClick();
+    updateUnitClass(celsiusSpan, fahrenheitSpan);
+});
